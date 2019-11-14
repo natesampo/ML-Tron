@@ -12,7 +12,7 @@ RIGHT = (1, 0)
 class Game(object):
 	def __init__(self):
 		pygame.init()
-		self.board = [[0 for i in range(board_dims[0])] for j in range(board_dims[0])]
+		self.board = [[0 for i in range(board_dims[1]-2)] for j in range(board_dims[0]-2)]
 
 		self.players = []
 		for i in range(player_count):
@@ -23,9 +23,10 @@ class Game(object):
 
 	def main(self):
 		while self.players:
-			for item in self.board:
-				print(item)
-			print()
+			for i in range(len(self.board[0])):
+				for j in range(len(self.board)):
+					print(self.board[j][i], end=' ')
+				print()
 			for i in range(len(self.players)-1, -1, -1):
 				player = self.players[i]
 				self.board[player.x][player.y] = 1
