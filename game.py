@@ -1,13 +1,12 @@
 import pygame
 import random
 
+import controller
+
+from constants import *
+
 board_dims = (20, 20)
 player_count = 1
-
-UP = (0, -1)
-DOWN = (0, 1)
-LEFT = (-1, 0)
-RIGHT = (1, 0)
 
 class Game(object):
 	def __init__(self):
@@ -23,20 +22,21 @@ class Game(object):
 
 	def main(self):
 		while self.players:
+			pygame.event.pump()
+
 			for item in self.board:
 				print(item)
 			print()
 			for i in range(len(self.players)-1, -1, -1):
 				player = self.players[i]
 				self.board[player.x][player.y] = 1
-				print(player.move())
+				move = player.move()
+				#print(move)
 				if (self.board[player.x][player.y] == 0):
 					self.board[player.x][player.y] = 2
 				else:
 					player.die()
 					del self.players[i]
-
-
 
 class Player(object):
 	def __init__(self, x, y, game):
@@ -44,9 +44,10 @@ class Player(object):
 		self.y = y
 		self.game = game
 		self.game.board[x][y] = 2
+		self.controller = controller.KeyboardController()
 
 	def move(self):
-		my_move = random.choice([UP, DOWN, LEFT, RIGHT])
+		my_move = self.controller.get_move()
 		self.x += my_move[0]
 		self.y += my_move[1]
 		return my_move
