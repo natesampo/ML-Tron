@@ -8,6 +8,9 @@ class Controller:
     def __init__(self):
         self.direction = UP
 
+    def update(self, events):
+        pass
+
     def get_move(self):
         raise NotImplementedError("Cannot call get_move on superclass")
 
