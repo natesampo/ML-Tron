@@ -15,6 +15,11 @@ class Game(object):
 		pygame.init()
 		self.screen = pygame.display.set_mode((100, 100))
 		self.board = [[EMPTY_TILE for i in range(board_dims[1]-2)] for j in range(board_dims[0]-2)]
+		self.board.insert(0, [TAIL_TILE for i in range(board_dims[0]-2)])
+		self.board.append([TAIL_TILE for i in range(board_dims[0]-2)])
+		for row in self.board:
+			row.insert(0, TAIL_TILE)
+			row.append(TAIL_TILE)
 
 		self.players = []
 		for i in range(player_count):
