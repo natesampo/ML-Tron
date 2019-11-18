@@ -34,8 +34,7 @@ class Game(object):
 			events = pygame.event.get()
 			self.check_close(events)
 
-			for i in range(len(self.players)-1, -1, -1):
-				player = self.players[i]
+			for player in self.players[::-1]:
 				player.update(events)
 				self.board[player.x][player.y] = TAIL_TILE
 				move = player.move()
@@ -45,7 +44,7 @@ class Game(object):
 					player.die()
 					del self.players[i]
 			self.display.update()
-			time.sleep(0.25)
+			time.sleep(0.1)
 
 	def check_close(self, events):
 		for event in events:
