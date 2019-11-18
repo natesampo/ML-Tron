@@ -21,13 +21,19 @@ class KeyboardController(Controller):
                        LEFT: pygame.K_LEFT,
                        RIGHT: pygame.K_RIGHT,
                        DOWN: pygame.K_DOWN}
+        self.last_pressed = None
+
+    def update(self, events):
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key in self.scheme.values():
+                    self.last_pressed = event.key
 
     def get_move(self):
-        pressed = pygame.key.get_pressed()
-        for direction in DIRECTIONS:
-            if pressed[self.scheme[direction]]:
+        for direction in self.scheme:
+            if self.scheme[direction] == self.last_pressed:
                 self.direction = direction
-                return direction
+                self.last_pressed = None
         return self.direction
 
 class WASDController(KeyboardController):

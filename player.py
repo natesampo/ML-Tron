@@ -9,6 +9,9 @@ class Player(object):
         self.game.board[x][y] = PLAYER_TILE
         self.controller = controller.KeyboardController()
 
+    def update(self, events):
+        self.controller.update(events)
+
     def move(self):
         my_move = self.controller.get_move()
         self.x += my_move[0]

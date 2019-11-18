@@ -36,9 +36,10 @@ class Game(object):
 
 			for i in range(len(self.players)-1, -1, -1):
 				player = self.players[i]
+				player.update(events)
 				self.board[player.x][player.y] = TAIL_TILE
 				move = player.move()
-				if (self.board[player.x][player.y] == EMPTY_TILE):
+				if self.board[player.x][player.y] == EMPTY_TILE:
 					self.board[player.x][player.y] = PLAYER_TILE
 				else:
 					player.die()
