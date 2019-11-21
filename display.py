@@ -27,7 +27,7 @@ class PrintDisplay(Display):
     def update(self):
         for i in range(len(self.game.board[0])):
             for j in range(len(self.game.board)):
-                print(self.game.board[j][i], end=' ')
+                print(str(self.game.board[j][i]), end=' ')
             print()
         print()
 
@@ -46,7 +46,7 @@ class WindowDisplay(Display):
         for column in self.game.board:
             y = origin_y
             for item in column:
-                color = COLOR_LOOKUP.get(item, WHITE)
+                color = COLOR_LOOKUP.get(str(item), WHITE)
                 rect = (x, y, TILE_SIZE, TILE_SIZE)
                 pygame.draw.rect(self.screen, color, rect)
                 y += TILE_SIZE

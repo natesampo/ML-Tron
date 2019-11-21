@@ -9,49 +9,59 @@ import player
 
 from constants import *
 
-board_dims = BOARD_SIZE
-player_count = 1
 
-class Game(object):
-	def __init__(self):
-		pygame.init()
-		self.display = display.WindowDisplay(self)
-		self.board = [[EMPTY_TILE for i in range(board_dims[1]-2)] for j in range(board_dims[0]-2)]
-		self.board.insert(0, [TAIL_TILE for i in range(board_dims[0]-2)])
-		self.board.append([TAIL_TILE for i in range(board_dims[0]-2)])
-		for row in self.board:
-			row.insert(0, TAIL_TILE)
-			row.append(TAIL_TILE)
+class Game:
 
-		self.players = []
-		for i in range(player_count):
-			self.players.append(player.Player(round(board_dims[0]/2), round(board_dims[1]/2), self))
+    board = None
+    player_count = 1
 
-		self.main()
+    def __init__(self):
+        pygame.init()
+        self.display = display.WindowDisplay(self)
+        self.generate_board()
 
-	def main(self):
-		while self.players:
-			events = pygame.event.get()
-			self.check_close(events)
+        self.players = []
+        for i in range(self.player_count):
+            self.add_player(round(BOARD_WIDTH/2), round(BOARD_HEIGHT/2))
 
-			for player in self.players[::-1]:
-				player.update(events)
-				self.board[player.x][player.y] = TAIL_TILE
-				move = player.move()
-				if self.board[player.x][player.y] == EMPTY_TILE:
-					self.board[player.x][player.y] = PLAYER_TILE
-				else:
-					player.die()
-					del self.players[i]
-			self.display.update()
-			time.sleep(0.1)
+        self.main()
 
-	def check_close(self, events):
-		for event in events:
-			if event.type == pygame.QUIT:
-				pygame.quit()
-				sys.exit()
+    def generate_board(self):
+        """ Generates an array of EMPTY tiles of size BOARD_SIZE with walls along the outside
+            and assigns it to self.board.
+        """
+
+        self.board = [[EMPTY_TILE for _ in range(BOARD_HEIGHT)] for _ in range(BOARD_WIDTH)]
+
+        # Add tail tiles around the edges
+        for x, column in enumerate(self.board):
+            for y, _ in enumerate(column):
+                if x == 0 or y == 0 or x == BOARD_WIDTH - 1 or y == BOARD_HEIGHT - 1:
+                    self.board[x][y] = TAIL_TILE
+
+    def add_player(self, x, y):
+        """ Adds a new player at position x, y """
+        self.players.append(player.Player(x, y, self))
+
+    def check_close(self, events):
+        """ Given a list of PyGame events, closes the program if it contains a QUIT event. """
+        for event in events:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+    def main(self):
+        """ Runs the main loop. """
+        while self.players:
+            events = pygame.event.get()
+            self.check_close(events)
+
+            for player in self.players[::-1]:
+                player.update(events)
+                player.move()
+            self.display.update()
+            time.sleep(0.1)
 
 
 if __name__=="__main__":
-	Game()
+    Game()

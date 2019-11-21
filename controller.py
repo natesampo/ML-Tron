@@ -35,8 +35,12 @@ class KeyboardController(Controller):
     def get_move(self):
         for direction in self.scheme:
             if self.scheme[direction] == self.last_pressed:
-                self.direction = direction
-                self.last_pressed = None
+
+                # Don't turn in a direction exactly opposite current movement
+                if sorted((self.direction, direction)) not in (sorted((LEFT, RIGHT)), sorted((UP, DOWN))):
+                    self.direction = direction
+                    self.last_pressed = None
+
         return self.direction
 
 class WASDController(KeyboardController):
