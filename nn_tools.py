@@ -1,3 +1,4 @@
+from constants import *
 import math
 import random
 
@@ -36,6 +37,17 @@ class Node:
         return f"\nNode (I={self.number}, " \
                f"in={sorted([item.in_node.number for item in self.edges_in])}, " \
                f"out={sorted([item.out_node.number for item in self.edges_out])}"
+
+    def check_valid_edge(self, destination_node):
+        """ Checks to see if new edge is legal """
+        if destination_node == self:
+            return False
+
+        for edge in edges_out:
+            if not edge.out_node.check_valid_edge(destination_node):
+                return False
+
+        return True
 
     @staticmethod
     def random_bias():
@@ -122,6 +134,7 @@ class Agent:
 class Population:
 
     def __init__(self):
+        self.agents = []
         self.innovation_count = 0
         self.node_count = 0
 
@@ -145,5 +158,11 @@ class Population:
         self.node_count += 1
         return result
 
+    def instantiate_population(self):
+        """ Create initial population and populate with empty agents """
+        while len(self.agents) < POPULATION_SIZE:
+            self.agents.append(Agent(self))
+
     # TODO add population simulation
     # TODO program ability to add nodes
+
