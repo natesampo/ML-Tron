@@ -31,6 +31,17 @@ class Node:
         """ Resets the stored value. """
         self.val = None
 
+    def check_valid_edge(self, destination_node):
+        """ Checks to see if new edge is legal """
+        if destination_node == self:
+            return False
+
+        for edge in edges_out:
+            if not edge.out_node.check_valid_edge(destination_node):
+                return False
+
+        return True
+
     @staticmethod
     def sigmoid(x):
         return 1 / (1 + math.exp(-x))
