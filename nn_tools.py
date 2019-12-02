@@ -1,3 +1,4 @@
+from constants import *
 import math
 
 
@@ -83,6 +84,7 @@ class Agent:
 class Population:
 
     def __init__(self):
+        self.agents = []
         self.innovation_count = 0
         self.node_count = 0
 
@@ -106,6 +108,10 @@ class Population:
         self.node_count += 1
         return result
 
+    def instantiate_population(self):
+        """ Create initial population and populate with empty agents """
+        while len(self.agents) < POPULATION_SIZE:
+            self.agents.append(Agent(self))
+
     # TODO add population simulation
     # TODO program ability to add nodes
-
