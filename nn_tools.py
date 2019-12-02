@@ -125,6 +125,22 @@ class Agent:
         # The last layer is output nodes
         self.output_nodes = previous_layer
 
+    def create_empty(self, input_size, output_size):
+        """ Creates an unconnected, two-layer graph with the correct number of input and output nodes. """
+        self.nodes = set()
+        self.edges = set()
+        self.input_nodes = set()
+
+        for _ in range(input_size):
+            self.input_nodes.add(Node(innovation=self.pop.new_node_number()))
+
+        for _ in range(output_size):
+            self.output_nodes.add(Node(innovation=self.pop.new_node_number()))
+
+        self.nodes |= self.input_nodes
+        self.nodes |= self.output_nodes
+
+
     # TODO write methods for adding nodes and edges
     # TODO make reasonable way to initialize and give input states
     # TODO add mutation
@@ -165,4 +181,3 @@ class Population:
 
     # TODO add population simulation
     # TODO program ability to add nodes
-
