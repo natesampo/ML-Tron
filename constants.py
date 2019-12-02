@@ -26,6 +26,7 @@ COLOR_LOOKUP = {EMPTY_TILE: DARK_GRAY,
                 PLAYER_TILE: GREEN,
                 TAIL_TILE: DARK_GREEN}
 
+# Population constants
 POPULATION_SIZE = 10
 
 # NEAT constants
