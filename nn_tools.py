@@ -98,8 +98,3 @@ class Population:
     # TODO add population simulation
     # TODO program ability to add nodes
 
-
-
-
-
-
