@@ -80,6 +80,10 @@ class Edge:
         else:
             return 0
 
+    def disable(self):
+        """ Disables the edge. """
+        self.enabled = False
+
     @staticmethod
     def random_weight():
         """ Returns a random weight. """
@@ -139,6 +143,20 @@ class Agent:
 
         self.nodes |= self.input_nodes
         self.nodes |= self.output_nodes
+
+    def break_edge(self, edge):
+        """ Creates a new node where an edge used to be, with two new edges connecting it to the previous edge's
+            endpoints. Disables the previous edge.
+        """
+
+        in_node = edge.in_node
+        out_node = edge.out_node
+        new_node = Node(innovation=self.pop.new_node_number())
+        self.edges.add(Edge(self.pop.new_innovation_number(), in_node, new_node))
+        self.edges.add(Edge(self.pop.new_innovation_number(), new_node, out_node))
+        self.nodes.add(new_node)
+        edge.disable()
+
 
 
     # TODO write methods for adding nodes and edges
