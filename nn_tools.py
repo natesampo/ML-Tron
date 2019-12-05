@@ -157,11 +157,36 @@ class Agent:
         self.nodes.add(new_node)
         edge.disable()
 
+    def add_random_edge(self, max_iterations=10):
+        """ Adds an edge between two random unconnected nodes, and returns True on success.
+            If this fails to create a valid edge max_iterations consecutive times, it fails and returns False.
+        """
 
+        iterations = 0
+        in_node = random.choice(self.nodes - self.output_nodes)
+        already_connected = {edge.out_node for edge in in_node.edges_out}
+        out_node = random.choice(self.nodes - self.input_nodes - already_connected - {in_node})
+        while not in_node.check_valid_edge(out_node):
+            out_node = random.choice(self.nodes - self.input_nodes - {in_node})
+            iterations += 1
+            if iterations >= max_iterations:
+                return False
 
-    # TODO write methods for adding nodes and edges
+        self.edges.add(Edge(innovation=self.pop.new_innovation_number(),
+                            in_node=in_node,
+                            out_node=out_node))
+        return True
+
+    def mutate(self):
+        """ Applies a random mutation to the active agent, based on values in constants.py """
+        if random.random() < NEW_EDGE_MUTATION_PROB:
+            self.add_random_edge()
+        else:
+            edge_to_break = random.choice(self.edges)
+            self.break_edge(edge_to_break)
+        # TODO add ability to mutate weights of edges
+
     # TODO make reasonable way to initialize and give input states
-    # TODO add mutation
     # TODO add reproduction
 
 
