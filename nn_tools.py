@@ -199,7 +199,7 @@ class Agent:
         new_agent = Agent(self.pop)
 
         new_agent.input_nodes = self.input_nodes
-        new_agent.output_nodes = self.out_nodes
+        new_agent.output_nodes = self.output_nodes
 
         for edge in self.edges:
             new_agent.edges.add(edge.copy())
