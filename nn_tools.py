@@ -49,10 +49,14 @@ class Node:
 
         return True
 
+    def copy(self):
+        """ Copies the node preserving all values """
+        return Node(self.number, bias=self.bias, edges_in=self.edges_in, edges_out=self.edges_out, activation_func=self.activation_func)
+
     @staticmethod
     def random_bias():
         """ Returns a random value for a bias term. """
-        return random.gauss(0, 1)
+        return random.gauss(0, GAUSSIAN_DISTRIBUTION)
 
     @staticmethod
     def sigmoid(x):
@@ -84,10 +88,14 @@ class Edge:
         """ Disables the edge. """
         self.enabled = False
 
+    def copy(self):
+        """ Copies the edge preserving all values """
+        return Edge(self.innovation, self.in_node, self.out_node, weight=self.weight, enabled=self.enabled)
+
     @staticmethod
     def random_weight():
         """ Returns a random weight. """
-        return random.gauss(0, 1)
+        return random.random()*NORMAL_DISTRIBUTION - NORMAL_DISTRIBUTION/2
 
 
 class Agent:
@@ -185,6 +193,30 @@ class Agent:
             edge_to_break = random.choice(self.edges)
             self.break_edge(edge_to_break)
         # TODO add ability to mutate weights of edges
+
+    def copy(self):
+        """ Copy agent preserving all values """
+        new_agent = Agent(self.pop)
+
+        new_agent.input_nodes = self.input_nodes
+        new_agent.output_nodes = self.out_nodes
+
+        for edge in self.edges:
+            new_agent.edges.add(edge.copy())
+
+        for node in self.nodes:
+            new_node = node.copy()
+
+            for edge in new_agent.edges:
+                if edge.in_node == node:
+                    edge.in_node = new_node
+
+                if edge.out_node == node:
+                    edge.out_node = new_node
+
+            new_agent.nodes.add(new_node)
+
+        return new_agent
 
     # TODO make reasonable way to initialize and give input states
     # TODO add reproduction
