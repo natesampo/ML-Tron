@@ -16,7 +16,7 @@ class Node:
 
     def get_input_sum(self):
         """ Returns a weighted sum of all incoming edges. """
-        _sum = self.bias
+        _sum = 0
         for edge in self.edges_in:
             _sum += edge.get_output_value()
 
