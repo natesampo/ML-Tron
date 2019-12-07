@@ -1,6 +1,8 @@
-from constants import *
 import math
 import random
+import game
+import pickle
+from constants import *
 
 
 class Node:
@@ -140,11 +142,11 @@ class Agent:
         self.edges = set()
         self.input_nodes = set()
 
-        for _ in range(input_size):
-            self.input_nodes.add(Node(innovation=self.pop.new_node_number()))
-
         for _ in range(output_size):
             self.output_nodes.add(Node(innovation=self.pop.new_node_number()))
+
+        for _ in range(input_size):
+            self.input_nodes.add(Node(innovation=self.pop.new_node_number()))
 
         self.nodes |= self.input_nodes
         self.nodes |= self.output_nodes
@@ -195,6 +197,13 @@ class Agent:
             edge_to_break = random.choice(self.edges)
             self.break_edge(edge_to_break)
         # TODO add ability to mutate weights of edges
+
+    def test_fitness(self):
+        """ Runs a simulation for the Agent and returns a fitness. """
+        g = game.Game()
+        g.add_players(False, self)
+        self.fitness = g.main()
+        return self.fitness
 
     def copy(self):
         """ Copy agent preserving all values """
@@ -258,8 +267,25 @@ class Population:
 
     def instantiate_population(self):
         """ Create initial population and populate with empty agents """
-        while len(self.agents) < POPULATION_SIZE:
-            self.agents.append(Agent(self))
+        new_agent = Agent(self)
+        new_agent.create_empty(10, 4)
+        # TODO Copy first agent and mutate for initial population
+        self.agents.append(new_agent)
+
+    def save_population(self):
+        """ Create pickle file of entire population
+        """
+        with open("population.pkl", 'wb') as file:
+            pickle.dump(self, file)
+
+    def load_population(self):
+        """ Loads a population from a pickled population object
+        """
+        with open("population.pkl", 'rb') as file:
+            loaded_pop = pickle.load(file)
+            self.agents = loaded_pop.agents
+            self.innovation_count = loaded_pop.innovation_count
+            self.node_count = loaded_pop.node_count
 
     def reproduction(self, agent_1, agent_2):
         """ Combine agent nodes to create a new one """
