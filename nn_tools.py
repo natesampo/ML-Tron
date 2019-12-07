@@ -265,7 +265,7 @@ class Population:
     def load_population(self):
         """ Loads a population from a pickled population object
         """
-        with open("population.pkl", 'wb') as file:
+        with open("population.pkl", 'rb') as file:
             loaded_pop = pickle.load(file)
             self.agents = loaded_pop.agents
             self.innovation_count = loaded_pop.innovation_count

@@ -43,6 +43,7 @@ class KeyboardController(Controller):
 
         return self.direction
 
+
 class WASDController(KeyboardController):
     def __init__(self):
         super().__init__()
@@ -50,3 +51,24 @@ class WASDController(KeyboardController):
                        LEFT: pygame.K_a,
                        RIGHT: pygame.K_d,
                        DOWN: pygame.K_s}
+
+
+class AgentController(Controller):
+    def __init__(self, agent):
+        super().__init__()
+        self.agent = agent
+
+    def get_move(self):
+        """ Evaluates the confidence for all output nodes in network, then proceeds in the
+            direction of highest confidence.
+        """
+        max_value = None
+        max_value_node = None
+        for node in self.agent.output_nodes:
+            val = node.value()
+            if max_value is None or val > max_value:
+                max_value_node = node
+                max_value = val
+
+        # Return direction corresponding to node number for highest value
+        return INNOVATION_TO_DIRECTION[max_value_node.number]
