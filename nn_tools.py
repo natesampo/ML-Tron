@@ -5,10 +5,9 @@ import random
 
 class Node:
 
-    def __init__(self, innovation, bias=None, edges_in=None, edges_out=None, activation_func=None):
+    def __init__(self, innovation, edges_in=None, edges_out=None, activation_func=None):
         self.val = None
         self.number = innovation
-        self.bias = bias if bias else self.random_bias()
         self.edges_in = edges_in if edges_in else []
         self.edges_out = edges_out if edges_out else []
         self.activation_func = self.sigmoid if not activation_func else activation_func
@@ -51,12 +50,7 @@ class Node:
 
     def copy(self):
         """ Copies the node preserving all values """
-        return Node(self.number, bias=self.bias, edges_in=self.edges_in, edges_out=self.edges_out, activation_func=self.activation_func)
-
-    @staticmethod
-    def random_bias():
-        """ Returns a random value for a bias term. """
-        return random.gauss(0, GAUSSIAN_DISTRIBUTION)
+        return Node(self.number, edges_in=self.edges_in, edges_out=self.edges_out, activation_func=self.activation_func)
 
     @staticmethod
     def sigmoid(x):
@@ -106,6 +100,9 @@ class Agent:
         self.input_nodes = set()
         self.output_nodes = set()
         self.edges = set()
+        self.innovations = set()
+        self.node_numbers = set()
+        self.fitness = 0
 
     def create_fully_connected(self, *args):
         """ Creates a fully connected neural network, with the input values being the number of nodes in each layer.
@@ -159,8 +156,11 @@ class Agent:
 
         in_node = edge.in_node
         out_node = edge.out_node
+        self.node_numbers.add(self.pop.node_count)
         new_node = Node(innovation=self.pop.new_node_number())
+        self.innovations.add(self.pop.innovation_count)
         self.edges.add(Edge(self.pop.new_innovation_number(), in_node, new_node))
+        self.innovations.add(self.pop.innovation_count)
         self.edges.add(Edge(self.pop.new_innovation_number(), new_node, out_node))
         self.nodes.add(new_node)
         edge.disable()
@@ -180,9 +180,11 @@ class Agent:
             if iterations >= max_iterations:
                 return False
 
+        self.innovations.add(self.pop.innovation_count)
         self.edges.add(Edge(innovation=self.pop.new_innovation_number(),
                             in_node=in_node,
                             out_node=out_node))
+
         return True
 
     def mutate(self):
@@ -198,8 +200,8 @@ class Agent:
         """ Copy agent preserving all values """
         new_agent = Agent(self.pop)
 
-        new_agent.input_nodes = self.input_nodes
-        new_agent.output_nodes = self.output_nodes
+        new_agent.innovations = self.innovations
+        new_agent.node_numbers = self.node_numbers
 
         for edge in self.edges:
             new_agent.edges.add(edge.copy())
@@ -215,6 +217,11 @@ class Agent:
                     edge.out_node = new_node
 
             new_agent.nodes.add(new_node)
+
+            if node in self.input_nodes:
+                new_agent.input_nodes.add(new_node)
+            if node in self.output_nodes:
+                new_agent.output_nodes.add(new_node)
 
         return new_agent
 
@@ -253,6 +260,27 @@ class Population:
         """ Create initial population and populate with empty agents """
         while len(self.agents) < POPULATION_SIZE:
             self.agents.append(Agent(self))
+
+    def reproduction(self, agent_1, agent_2):
+        """ Combine agent nodes to create a new one """
+        new_agent = (agent_1.copy() if agent_1.fitness > agent_2.fitness else agent_2.copy())
+
+        for edge in agent_2.edges:
+            if not edge.innovation in new_agent.innovations:
+                new_agent.edges.add(edge)
+
+                if not edge.in_node.number in new_agent.node_numbers:
+                    new_node = edge.in_node.copy()
+                    for new_edge in new_node.edges_in:
+                        new_edge.out_node = new_node
+
+                    for new_edge in new_node.edges_out:
+                        new_edge.in_node = new_node
+
+                    new_agent.nodes.add(new_node)
+
+        return new_agent
+
 
     # TODO add population simulation
     # TODO program ability to add nodes
