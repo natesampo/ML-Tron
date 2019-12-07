@@ -287,8 +287,9 @@ class Population:
             self.innovation_count = loaded_pop.innovation_count
             self.node_count = loaded_pop.node_count
 
-    def reproduction(self, agent_1, agent_2):
-        """ Combine agent nodes to create a new one """
+    @staticmethod
+    def reproduction(agent_1, agent_2):
+        """ Combine agent to create a new one """
         new_agent = (agent_1.copy() if agent_1.fitness > agent_2.fitness else agent_2.copy())
 
         for edge in agent_2.edges:
