@@ -40,4 +40,3 @@ class Player(object):
     def die(self):
         self.game.board[self.x][self.y] = TAIL_TILE
         self.game.players.remove(self)
-        print("Ouch")

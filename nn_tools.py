@@ -1,6 +1,7 @@
 from constants import *
 import math
 import random
+import game
 
 
 class Node:
@@ -193,6 +194,13 @@ class Agent:
             edge_to_break = random.choice(self.edges)
             self.break_edge(edge_to_break)
         # TODO add ability to mutate weights of edges
+
+    def test_fitness(self):
+        """ Runs a simulation for the Agent and returns a fitness. """
+        g = game.Game()
+        g.add_players(False, self)
+        self.fitness = g.main()
+        return self.fitness
 
     def copy(self):
         """ Copy agent preserving all values """
