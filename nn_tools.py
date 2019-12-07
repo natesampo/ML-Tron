@@ -1,7 +1,8 @@
-from constants import *
 import math
 import random
 import game
+import pickle
+from constants import *
 
 
 class Node:
@@ -261,6 +262,21 @@ class Population:
         """ Create initial population and populate with empty agents """
         while len(self.agents) < POPULATION_SIZE:
             self.agents.append(Agent(self))
+
+    def save_population(self):
+        """ Create pickle file of entire population
+        """
+        with open("population.pkl", 'wb') as file:
+            pickle.dump(self, file)
+
+    def load_population(self):
+        """ Loads a population from a pickled population object
+        """
+        with open("population.pkl", 'rb') as file:
+            loaded_pop = pickle.load(file)
+            self.agents = loaded_pop.agents
+            self.innovation_count = loaded_pop.innovation_count
+            self.node_count = loaded_pop.node_count
 
     # TODO add population simulation
     # TODO program ability to add nodes
