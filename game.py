@@ -52,15 +52,26 @@ class Game:
 
     def main(self):
         """ Runs the main loop. """
+        start = time.time()
+        cps = 10  # Cycles per second to run simulation. Set to None for no limit.
+
         while self.players:
+
+            # Check keyboard inputs and window closing
             events = pygame.event.get()
             self.check_close(events)
 
+            # Update players
             for player in self.players[::-1]:
                 player.update(events)
                 player.move()
             self.display.update()
-            time.sleep(0.1)
+
+            # Run at a fixed number of cycles per second
+            if cps is not None:
+                while time.time() < start + 1/cps:
+                    pass
+                start += 1/cps
 
 
 if __name__=="__main__":
