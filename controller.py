@@ -66,7 +66,8 @@ class AgentController(Controller):
         max_value_node = None
         for node in self.agent.output_nodes:
             val = node.value()
-            if max_value is None or val > max_value:
+            # Nodes with higher innovation number are prioritized in case of ties
+            if max_value is None or val > max_value or (val == max_value and node.number > max_value_node.number):
                 max_value_node = node
                 max_value = val
 
