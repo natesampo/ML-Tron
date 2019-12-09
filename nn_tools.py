@@ -292,19 +292,43 @@ class Population:
         """ Combine agent to create a new one """
         new_agent = (agent_1.copy() if agent_1.fitness > agent_2.fitness else agent_2.copy())
 
-        for edge in agent_2.edges:
+        added_edges = set()
+        added_nodes = set()
+
+        for edge in (agent_2.edges if agent_1.fitness > agent_2.fitness else agent_1.edges):
             if not edge.innovation in new_agent.innovations:
-                new_agent.edges.add(edge)
+                new_edge = edge.copy()
+                new_agent.edges.add(new_edge)
+                new_agent.innovations.add(new_edge.innovation)
+                added_edges.add(new_edge)
 
-                if not edge.in_node.number in new_agent.node_numbers:
-                    new_node = edge.in_node.copy()
-                    for new_edge in new_node.edges_in:
-                        new_edge.out_node = new_node
+        for node in (agent_2.nodes if agent_1.fitness > agent_2.fitness else agent_1.nodes):
+            if not node.number in new_agent.node_numbers:
+                new_node = node.copy()
+                new_agent.nodes.add(new_node)
+                new_agent.node_numbers.add(new_node.number)
+                added_nodes.add(new_node)
 
-                    for new_edge in new_node.edges_out:
-                        new_edge.in_node = new_node
+        for edge in added_edges:
+            for node in new_agent.nodes:
+                found = 0
+                if node.number == edge.in_node.number:
+                    edge.in_node = node
+                    found += 1
+                elif node.number == edge.out_node.number:
+                    edge.out_node = node
+                    found += 1
 
-                    new_agent.nodes.add(new_node)
+                if found == 2:
+                    break
+
+        for node in added_nodes:
+            for i in range(len(node.edges_in)):
+                if not node.edges_in[i] in added_edges:
+                    for edge in new_agent.edges:
+                        if edge.innovation == node.edges_in[i].innovation:
+                            node.edges_in[i] == edge
+                            break
 
         return new_agent
 
