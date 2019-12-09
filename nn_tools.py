@@ -234,6 +234,12 @@ class Agent:
 
         return new_agent
 
+    def get_edge_by_innov(self, innov: int) -> Edge:
+        """ Return an Edge object with the given innovation number
+        """
+        for edge in self.edges:
+            if edge.innovation == innov:
+                return edge
     # TODO make reasonable way to initialize and give input states
     # TODO add reproduction
 
@@ -312,6 +318,26 @@ class Population:
 
         return new_agent
 
+    @staticmethod
+    def get_difference(agent_1: Agent, agent_2: Agent) -> int:
+        """ Measures genetic distance between two agents
+        """
+        innov_1 = agent_1.innovations
+        innov_2 = agent_2.innovations
+
+        excess_count = innov_1 - innov_2
+        disjoint_count = innov_2 - innov_1
+        common = innov_1.intersection(innov_2)
+        total_w_diff = 0
+        for innov in common:
+            e_1 = agent_1.get_edge_by_innov(innov)
+            e_2 = agent_2.get_edge_by_innov(innov)
+            total_w_diff += abs(e_1.weight - e_2.weight)
+        ave_w_diff = total_w_diff / len(common)
+        n = max(len(innov_1), len(innov_2))
+        dist = WEIGHT_DIFFERENCE_COEFF * ave_w_diff + DISJOINT_DIFFERENCE_COEFF * (disjoint_count / n) \
+               + EXCESS_DIFFERENCE_COEFF * (excess_count / n)
+        return dist
 
     # TODO add population simulation
     # TODO program ability to add nodes
