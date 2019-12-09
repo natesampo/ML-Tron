@@ -363,8 +363,8 @@ class Population:
         innov_1 = agent_1.innovations
         innov_2 = agent_2.innovations
 
-        excess_count = innov_1 - innov_2
-        disjoint_count = innov_2 - innov_1
+        excess_count = len(innov_1 - innov_2)
+        disjoint_count = len(innov_2 - innov_1)
         common = innov_1.intersection(innov_2)
         total_w_diff = 0
         for innov in common:
