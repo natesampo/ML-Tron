@@ -270,7 +270,7 @@ class Population:
     def simulate(self):
 
         self.agents = []
-        pop_size = 10
+        pop_size = 30
         live_size = 4
         new_agent = Agent(self)
         new_agent.create_empty(BOARD_WIDTH * BOARD_HEIGHT, 4)
@@ -283,10 +283,12 @@ class Population:
             print(f"Generation: {generation_number}")
             print(f"Highest fitness: {self.agents[-1].test_fitness()}")
             self.agents = self.agents[-live_size:]
+            new_agents = []
             for i in range(pop_size - live_size):
                 new_agent = random.choice(self.agents).copy()
                 new_agent.mutate()
-                self.agents.append(new_agent)
+                new_agents.append(new_agent)
+            self.agents += new_agents
             generation_number += 1
 
     def new_innovation_number(self):
