@@ -244,6 +244,7 @@ class Population:
         self.agents = []
         self.innovation_count = 0
         self.node_count = 0
+        self.generation = 0
 
     def new_innovation_number(self):
         """ Increments the innovation counter, then returns the previous value.
@@ -275,17 +276,20 @@ class Population:
     def save_population(self):
         """ Create pickle file of entire population
         """
-        with open("population.pkl", 'wb') as file:
+        filename = "population_gen" + str(self.generation) + ".pkl"
+        with open(filename, 'wb') as file:
             pickle.dump(self, file)
 
-    def load_population(self):
+    def load_population(self, generation):
         """ Loads a population from a pickled population object
         """
-        with open("population.pkl", 'rb') as file:
+        filename = "population_gen" + str(generation) + ".pkl"
+        with open(filename, 'rb') as file:
             loaded_pop = pickle.load(file)
             self.agents = loaded_pop.agents
             self.innovation_count = loaded_pop.innovation_count
             self.node_count = loaded_pop.node_count
+            self.generation = loaded_pop.generation
 
     @staticmethod
     def reproduction(agent_1, agent_2):
