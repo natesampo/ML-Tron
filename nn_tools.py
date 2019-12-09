@@ -198,6 +198,10 @@ class Agent:
             self.break_edge(edge_to_break)
         # TODO add ability to mutate weights of edges
 
+    def mutate_edges(self):
+        """ Has a chance of applying a perturbation to each edge. """
+        # TODO implement this
+
     def test_fitness(self):
         """ Runs a simulation for the Agent and returns a fitness. """
         g = game.Game()
