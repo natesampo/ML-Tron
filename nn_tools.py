@@ -262,6 +262,7 @@ class Population:
 
     def __init__(self):
         self.agents = []
+        self.census = dict()
         self.innovation_count = 0
         self.node_count = 0
         self.generation = 0
@@ -310,6 +311,31 @@ class Population:
             self.innovation_count = loaded_pop.innovation_count
             self.node_count = loaded_pop.node_count
             self.generation = loaded_pop.generation
+            self.census = loaded_pop.census
+
+    def update_species(self):
+        """ Updates the list of species in the population, and retrieves their counts
+        """
+        species_list = [agent.copy() for agent in self.census.keys()]
+        updates = dict()
+        new_census = dict()
+        for agent in self.agents:
+            found = False
+            for species in species_list:
+                if not found:
+                    dist = self.get_difference(agent, species)
+                    if dist < SPECIES_THRESHOLD:
+                        if species not in new_census:
+                            updates[species] = agent
+                            new_census[agent] = 1
+                        else:
+                            new_census[updates[species]] += 1
+                        found = True
+            if not found:
+                species_list.append(agent)
+                updates[agent] = agent
+                new_census[agent] = 1
+        self.census = new_census
 
     @staticmethod
     def reproduction(agent_1, agent_2):
