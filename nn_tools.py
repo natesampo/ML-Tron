@@ -105,6 +105,7 @@ class Agent:
         self.innovations = set()
         self.node_numbers = set()
         self.fitness = 0
+        self.game = None  # Reference to in-progress game object for testing fitness
 
     def create_fully_connected(self, *args):
         """ Creates a fully connected neural network, with the input values being the number of nodes in each layer.
@@ -167,6 +168,11 @@ class Agent:
         self.nodes.add(new_node)
         edge.disable()
 
+    def clear_all_nodes(self):
+        """ Resets the stored values of all nodes in the Agent --- must do between testing outputs. """
+        for node in self.nodes:
+            node.clear()
+
     def add_random_edge(self, max_iterations=10):
         """ Adds an edge between two random unconnected nodes, and returns True on success.
             If this fails to create a valid edge max_iterations consecutive times, it fails and returns False.
@@ -196,17 +202,21 @@ class Agent:
         else:
             edge_to_break = random.choice(self.edges)
             self.break_edge(edge_to_break)
-        # TODO add ability to mutate weights of edges
+
+        self.mutate_edges()
 
     def mutate_edges(self):
         """ Has a chance of applying a perturbation to each edge. """
-        # TODO implement this
+        for edge in self.edges:
+            if random.random() < EDGE_MUTATION_PROB:
+                edge.weight += random.gauss(0, EDGE_MUTATION_STD_DEV)
 
     def test_fitness(self):
         """ Runs a simulation for the Agent and returns a fitness. """
         g = game.Game()
         g.add_players(False, self)
         self.fitness = g.main()
+        self.game = None  # Reset this value, set in Game
         return self.fitness
 
     def copy(self):

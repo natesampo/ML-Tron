@@ -34,6 +34,7 @@ class Game:
             for agent in args:
                 x, y = spawn_locations.pop()
                 self.add_agent_player(x, y, agent)
+                agent.game = self
 
     def generate_board(self):
         """ Generates an array of EMPTY tiles of size BOARD_SIZE with walls along the outside

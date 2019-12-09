@@ -58,10 +58,35 @@ class AgentController(Controller):
         super().__init__()
         self.agent = agent
 
+    def node_number_to_board_position(self, n):
+        """ Returns the position on the game board corresponding to the node number, offset by the
+            position of the player corresponding to the current agent (whew!)
+        """
+        relevant_player = [player for player in self.agent.game.players if player.agent is self.agent][0]
+        origin = relevant_player.x, relevant_player.y
+        x_offset = n % BOARD_WIDTH
+        y_offset = (n // BOARD_WIDTH) % BOARD_HEIGHT
+        x = (origin[0] + x_offset) % BOARD_WIDTH
+        y = (origin[1] + y_offset) % BOARD_HEIGHT
+        return x, y
+
     def get_move(self):
         """ Evaluates the confidence for all output nodes in network, then proceeds in the
             direction of highest confidence.
         """
+        if self.agent.game is None:
+            raise ValueError("The agent's Game attribute has not been set. Cannot get move.")
+
+        # Clear stored values of agent nodes
+        self.agent.clear_all_nodes()
+
+        # Update the set of input nodes to represent the board state
+        for node in self.agent.input_nodes:
+            num = node.number - NUM_OUTPUT_NODES
+            pos = self.node_number_to_board_position(num)
+            node.val = TILE_TYPE_TO_WEIGHT(self.agent.game.board[pos[0]][pos[1]])
+
+        # Check highest output value and move in that direction
         max_value = None
         max_value_node = None
         for node in self.agent.output_nodes:
