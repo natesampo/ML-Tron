@@ -351,7 +351,7 @@ class Population:
                 if not node.edges_in[i] in added_edges:
                     for edge in new_agent.edges:
                         if edge.innovation == node.edges_in[i].innovation:
-                            node.edges_in[i] == edge
+                            node.edges_in[i] = edge
                             break
 
         return new_agent
