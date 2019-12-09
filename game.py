@@ -69,7 +69,7 @@ class Game:
     def main(self):
         """ Runs the main loop. """
         start = time.time()
-        cps = 10  # Cycles per second to run simulation. Set to None for no limit.
+        cps = None  # Cycles per second to run simulation. Set to None for no limit.
         cycle = 0
 
         while self.players:

@@ -179,11 +179,11 @@ class Agent:
         """
 
         iterations = 0
-        in_node = random.choice(self.nodes - self.output_nodes)
+        in_node = random.choice(list(self.nodes - self.output_nodes))
         already_connected = {edge.out_node for edge in in_node.edges_out}
-        out_node = random.choice(self.nodes - self.input_nodes - already_connected - {in_node})
+        out_node = random.choice(list(self.nodes - self.input_nodes - already_connected - {in_node}))
         while not in_node.check_valid_edge(out_node):
-            out_node = random.choice(self.nodes - self.input_nodes - {in_node})
+            out_node = random.choice(list(self.nodes - self.input_nodes - {in_node}))
             iterations += 1
             if iterations >= max_iterations:
                 return False
@@ -200,8 +200,9 @@ class Agent:
         if random.random() < NEW_EDGE_MUTATION_PROB:
             self.add_random_edge()
         else:
-            edge_to_break = random.choice(self.edges)
-            self.break_edge(edge_to_break)
+            if self.edges:
+                edge_to_break = random.choice(list(self.edges))
+                self.break_edge(edge_to_break)
 
         self.mutate_edges()
 
@@ -265,6 +266,28 @@ class Population:
         self.innovation_count = 0
         self.node_count = 0
         self.generation = 0
+
+    def simulate(self):
+
+        self.agents = []
+        pop_size = 10
+        live_size = 4
+        new_agent = Agent(self)
+        new_agent.create_empty(BOARD_WIDTH * BOARD_HEIGHT, 4)
+        for i in range(pop_size):
+            self.agents.append(new_agent.copy())
+
+        generation_number = 0
+        while True:
+            self.agents.sort(key=lambda x:x.test_fitness())
+            print(f"Generation: {generation_number}")
+            print(f"Highest fitness: {self.agents[-1].test_fitness()}")
+            self.agents = self.agents[-live_size:]
+            for i in range(pop_size - live_size):
+                new_agent = random.choice(self.agents).copy()
+                new_agent.mutate()
+                self.agents.append(new_agent)
+            generation_number += 1
 
     def new_innovation_number(self):
         """ Increments the innovation counter, then returns the previous value.
@@ -379,3 +402,8 @@ class Population:
 
     # TODO add population simulation
     # TODO program ability to add nodes
+
+
+if __name__=="__main__":
+    p = Population()
+    p.simulate()
