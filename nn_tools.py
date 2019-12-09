@@ -248,6 +248,12 @@ class Agent:
 
         return new_agent
 
+    def get_edge_by_innov(self, innov: int) -> Edge:
+        """ Return an Edge object with the given innovation number
+        """
+        for edge in self.edges:
+            if edge.innovation == innov:
+                return edge
     # TODO make reasonable way to initialize and give input states
     # TODO add reproduction
 
@@ -258,6 +264,7 @@ class Population:
         self.agents = []
         self.innovation_count = 0
         self.node_count = 0
+        self.generation = 0
 
     def new_innovation_number(self):
         """ Increments the innovation counter, then returns the previous value.
@@ -289,17 +296,20 @@ class Population:
     def save_population(self):
         """ Create pickle file of entire population
         """
-        with open("population.pkl", 'wb') as file:
+        filename = "population_gen" + str(self.generation) + ".pkl"
+        with open(filename, 'wb') as file:
             pickle.dump(self, file)
 
-    def load_population(self):
+    def load_population(self, generation):
         """ Loads a population from a pickled population object
         """
-        with open("population.pkl", 'rb') as file:
+        filename = "population_gen" + str(generation) + ".pkl"
+        with open(filename, 'rb') as file:
             loaded_pop = pickle.load(file)
             self.agents = loaded_pop.agents
             self.innovation_count = loaded_pop.innovation_count
             self.node_count = loaded_pop.node_count
+            self.generation = loaded_pop.generation
 
     @staticmethod
     def reproduction(agent_1, agent_2):
@@ -322,6 +332,26 @@ class Population:
 
         return new_agent
 
+    @staticmethod
+    def get_difference(agent_1: Agent, agent_2: Agent) -> int:
+        """ Measures genetic distance between two agents
+        """
+        innov_1 = agent_1.innovations
+        innov_2 = agent_2.innovations
+
+        excess_count = innov_1 - innov_2
+        disjoint_count = innov_2 - innov_1
+        common = innov_1.intersection(innov_2)
+        total_w_diff = 0
+        for innov in common:
+            e_1 = agent_1.get_edge_by_innov(innov)
+            e_2 = agent_2.get_edge_by_innov(innov)
+            total_w_diff += abs(e_1.weight - e_2.weight)
+        ave_w_diff = total_w_diff / len(common)
+        n = max(len(innov_1), len(innov_2))
+        dist = WEIGHT_DIFFERENCE_COEFF * ave_w_diff + DISJOINT_DIFFERENCE_COEFF * (disjoint_count / n) \
+               + EXCESS_DIFFERENCE_COEFF * (excess_count / n)
+        return dist
 
     # TODO add population simulation
     # TODO program ability to add nodes
