@@ -62,7 +62,7 @@ class AgentController(Controller):
         """ Returns the position on the game board corresponding to the node number, offset by the
             position of the player corresponding to the current agent (whew!)
         """
-        relevant_player = [player for player in self.agent.game.players if player.agent is self.agent][0]
+        relevant_player = [player for player in self.agent.game.players if player.controller.agent is self.agent][0]
         origin = relevant_player.x, relevant_player.y
         x_offset = n % BOARD_WIDTH
         y_offset = (n // BOARD_WIDTH) % BOARD_HEIGHT
@@ -84,7 +84,7 @@ class AgentController(Controller):
         for node in self.agent.input_nodes:
             num = node.number - NUM_OUTPUT_NODES
             pos = self.node_number_to_board_position(num)
-            node.val = TILE_TYPE_TO_WEIGHT(self.agent.game.board[pos[0]][pos[1]])
+            node.val = TILE_TYPE_TO_WEIGHT[self.agent.game.board[pos[0]][pos[1]]]
 
         # Check highest output value and move in that direction
         max_value = None
