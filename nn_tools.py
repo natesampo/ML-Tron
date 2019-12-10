@@ -232,13 +232,17 @@ class Agent:
 
         for node in self.nodes:
             new_node = node.copy()
+            new_node.edges_in = []
+            new_node.edges_out = []
 
             for edge in new_agent.edges:
                 if edge.in_node == node:
                     edge.in_node = new_node
+                    new_node.edges_out.append(edge)
 
                 if edge.out_node == node:
                     edge.out_node = new_node
+                    new_node.edges_in.append(edge)
 
             new_agent.nodes.add(new_node)
 
