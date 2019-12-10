@@ -14,6 +14,7 @@ class Game:
 
     board = None
     player_count = 1
+    simulate = False
 
     def __init__(self):
         pygame.init()
@@ -59,37 +60,42 @@ class Game:
         new_player.controller = controller.AgentController(agent)
         self.players.append(new_player)
 
-    def check_close(self, events):
+    def check_globals(self, events):
         """ Given a list of PyGame events, closes the program if it contains a QUIT event. """
         for event in events:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    Game.simulate = not Game.simulate
 
     def main(self):
         """ Runs the main loop. """
         start = time.time()
-        cps = None  # Cycles per second to run simulation. Set to None for no limit.
+        cps = 25  # Cycles per second to run simulation. Set to None for no limit.
         cycle = 0
 
         while self.players:
 
             # Check keyboard inputs and window closing
             events = pygame.event.get()
-            self.check_close(events)
+            self.check_globals(events)
 
             # Update players
             for player in self.players[::-1]:
                 player.update(events)
                 player.move()
-            if cps:
+            if Game.simulate:
                 self.display.update()
 
             # Run at a fixed number of cycles per second
-            if cps is not None:
+            if Game.simulate:
                 while time.time() < start + 1/cps:
                     pass
                 start += 1/cps
+            else:
+                start = time.time()
 
             cycle += 1
         self.display.update()

@@ -4,6 +4,11 @@ DOWN = (0, 1)
 LEFT = (-1, 0)
 RIGHT = (1, 0)
 DIRECTIONS = (UP, DOWN, LEFT, RIGHT)
+OPPOSITE_DIRECTIONS = {UP: DOWN,
+                       DOWN: UP,
+                       LEFT: RIGHT,
+                       RIGHT:LEFT,
+                       None: None}
 NUM_OUTPUT_NODES = len(DIRECTIONS)
 
 EMPTY_TILE = "."
@@ -44,7 +49,8 @@ COLOR_LOOKUP = {EMPTY_TILE: DARK_GRAY,
                 TAIL_TILE: DARK_GREEN}
 
 # Population constants
-POPULATION_SIZE = 30
+POPULATION_SIZE = 40
+POPULATION_KEEP = 0.2
 
 # NEAT constants
 INTERSPECIES_MATING_PROB = 0.001
