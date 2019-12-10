@@ -57,6 +57,7 @@ class AgentController(Controller):
     def __init__(self, agent):
         super().__init__()
         self.agent = agent
+        self.direction = None
 
     def node_number_to_board_position(self, n):
         """ Returns the position on the game board corresponding to the node number, offset by the
@@ -96,5 +97,9 @@ class AgentController(Controller):
                 max_value_node = node
                 max_value = val
 
-        # Return direction corresponding to node number for highest value
-        return INNOVATION_TO_DIRECTION[max_value_node.number]
+        # Return direction corresponding to node number for highest value. Cannot turn 180 degrees.
+        new_direction = INNOVATION_TO_DIRECTION[max_value_node.number]
+        if new_direction == OPPOSITE_DIRECTIONS[self.direction]:
+            new_direction = self.direction
+        self.direction = new_direction
+        return self.direction

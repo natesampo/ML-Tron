@@ -154,12 +154,12 @@ class Agent:
         self.nodes |= self.output_nodes
 
         # Add edges to nodes corresponding to cardinal directions
-        # for node in self.input_nodes:
-        #     x_offset = node.number % BOARD_WIDTH
-        #     y_offset = (node.number // BOARD_WIDTH) % BOARD_HEIGHT
-        #     if (x_offset, y_offset) in [(1, 0), (BOARD_WIDTH - 1, 0), (0, 1), (0, BOARD_HEIGHT - 1)]:
-        #         for output_node in self.output_nodes:
-        #             self.edges.add(Edge(self.pop.new_innovation_number(), node, output_node))
+        for node in self.input_nodes:
+            x_offset = node.number % BOARD_WIDTH
+            y_offset = (node.number // BOARD_WIDTH) % BOARD_HEIGHT
+            if (x_offset, y_offset) in [(1, 0), (BOARD_WIDTH - 1, 0), (0, 1), (0, BOARD_HEIGHT - 1)]:
+                for output_node in self.output_nodes:
+                    self.edges.add(Edge(self.pop.new_innovation_number(), node, output_node))
 
     def break_edge(self, edge):
         """ Creates a new node where an edge used to be, with two new edges connecting it to the previous edge's
@@ -301,9 +301,11 @@ class Population:
 
         generation_number = 0
         while True:
-            self.agents.sort(key=lambda x:x.test_fitness())
+            for agent in self.agents:
+                agent.test_fitness()
+            self.agents.sort(key=lambda x:x.fitness)
             print(f"Generation: {generation_number}")
-            print(f"Highest fitness: {self.agents[-1].test_fitness()}")
+            print(f"Highest fitness: {self.agents[-1].fitness}")
             self.agents = self.agents[-live_size:]
             new_agents = []
             for i in range(pop_size - live_size):
