@@ -82,7 +82,8 @@ class Game:
             for player in self.players[::-1]:
                 player.update(events)
                 player.move()
-            self.display.update()
+            if cps:
+                self.display.update()
 
             # Run at a fixed number of cycles per second
             if cps is not None:
@@ -91,6 +92,7 @@ class Game:
                 start += 1/cps
 
             cycle += 1
+        self.display.update()
         return cycle * SURVIVAL_SCORE
 
 

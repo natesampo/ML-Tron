@@ -152,6 +152,14 @@ class Agent:
         self.nodes |= self.input_nodes
         self.nodes |= self.output_nodes
 
+        # Add edges to nodes corresponding to cardinal directions
+        # for node in self.input_nodes:
+        #     x_offset = node.number % BOARD_WIDTH
+        #     y_offset = (node.number // BOARD_WIDTH) % BOARD_HEIGHT
+        #     if (x_offset, y_offset) in [(1, 0), (BOARD_WIDTH - 1, 0), (0, 1), (0, BOARD_HEIGHT - 1)]:
+        #         for output_node in self.output_nodes:
+        #             self.edges.add(Edge(self.pop.new_innovation_number(), node, output_node))
+
     def break_edge(self, edge):
         """ Creates a new node where an edge used to be, with two new edges connecting it to the previous edge's
             endpoints. Disables the previous edge.
@@ -181,9 +189,12 @@ class Agent:
         iterations = 0
         in_node = random.choice(list(self.nodes - self.output_nodes))
         already_connected = {edge.out_node for edge in in_node.edges_out}
-        out_node = random.choice(list(self.nodes - self.input_nodes - already_connected - {in_node}))
+        valid_out_nodes = list(self.nodes - self.input_nodes - already_connected - {in_node})
+        if not valid_out_nodes:
+            return False
+        out_node = random.choice(valid_out_nodes)
         while not in_node.check_valid_edge(out_node):
-            out_node = random.choice(list(self.nodes - self.input_nodes - {in_node}))
+            out_node = random.choice(list(self.nodes - self.input_nodes - already_connected - {in_node}))
             iterations += 1
             if iterations >= max_iterations:
                 return False
@@ -275,8 +286,8 @@ class Population:
     def simulate(self):
 
         self.agents = []
-        pop_size = 30
-        live_size = 4
+        pop_size = 40
+        live_size = 10
         new_agent = Agent(self)
         new_agent.create_empty(BOARD_WIDTH * BOARD_HEIGHT, 4)
         for i in range(pop_size):
