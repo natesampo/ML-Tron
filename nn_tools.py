@@ -44,8 +44,8 @@ class Node:
         if destination_node == self:
             return False
 
-        for edge in self.edges_out:
-            if not edge.out_node.check_valid_edge(destination_node):
+        for edge in self.edges_in:
+            if not edge.in_node.check_valid_edge(destination_node):
                 return False
 
         return True
