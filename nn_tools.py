@@ -199,13 +199,14 @@ class Agent:
     def mutate(self):
         """ Applies a random mutation to the active agent, based on values in constants.py """
         if random.random() < NEW_EDGE_MUTATION_PROB:
-            self.add_random_edge()
+            if random.random() < 0.5:
+                self.add_random_edge()
+            else:
+                if self.edges:
+                    edge_to_break = random.choice(list(self.edges))
+                    self.break_edge(edge_to_break)
         else:
-            if self.edges:
-                edge_to_break = random.choice(list(self.edges))
-                self.break_edge(edge_to_break)
-
-        self.mutate_edges()
+            self.mutate_edges()
 
     def mutate_edges(self):
         """ Has a chance of applying a perturbation to each edge. """
@@ -277,7 +278,7 @@ class Population:
     def simulate(self):
 
         self.agents = []
-        pop_size = 30
+        pop_size = POPULATION_SIZE
         live_size = 4
         new_agent = Agent(self)
         new_agent.create_empty(BOARD_WIDTH * BOARD_HEIGHT, 4)
