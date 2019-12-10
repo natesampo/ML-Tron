@@ -270,23 +270,6 @@ class Agent:
                 new_agent.input_nodes.add(new_node)
             if node in self.output_nodes:
                 new_agent.output_nodes.add(new_node)
-        
-        for node in self.nodes:
-            for new_edge in new_agent.edges:
-                if new_edge in node.edges_in or new_edge in node.edges_out:
-                    print(new_edge.out_node == node)
-                    print("ME ME BIG DUMB1")
-            for new_node in new_agent.nodes:
-                if new_node == node:
-                    print("ME ME BIG DUMB2")
-
-        for edge in self.edges:
-            for new_edge in new_agent.edges:
-                if new_edge == edge:
-                    print("ME ME BIG DUMB3")
-            for new_node in new_agent.nodes:
-                if new_node == edge.in_node or new_node == edge.out_node:
-                    print("ME ME BIG DUMB4")
 
         return new_agent
 
@@ -426,6 +409,8 @@ class Population:
         for edge in (agent_2.edges if agent_1.fitness > agent_2.fitness else agent_1.edges):
             if not edge.innovation in new_agent.innovations:
                 new_edge = edge.copy()
+                new_edge.in_node.edges_out.remove(new_edge)
+                new_edge.out_node.edges_in.remove(new_edge)
                 new_agent.edges.add(new_edge)
                 new_agent.innovations.add(new_edge.innovation)
                 added_edges.add(new_edge)
