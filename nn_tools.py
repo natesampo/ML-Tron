@@ -106,6 +106,7 @@ class Agent:
         self.node_numbers = set()
         self.fitness = 0
         self.game = None  # Reference to in-progress game object for testing fitness
+        self.spec_id = 0
 
     def create_fully_connected(self, *args):
         """ Creates a fully connected neural network, with the input values being the number of nodes in each layer.
@@ -226,6 +227,7 @@ class Agent:
 
         new_agent.innovations = self.innovations
         new_agent.node_numbers = self.node_numbers
+        new_agent.spec_id = self.spec_id
 
         for edge in self.edges:
             new_agent.edges.add(edge.copy())
@@ -342,28 +344,37 @@ class Population:
             self.generation = loaded_pop.generation
             self.census = loaded_pop.census
 
+    def get_species_size(self, agent):
+        """ Returns the size of an agents species
+        """
+        return self.census[agent.spec_id]
+
     def update_species(self):
         """ Updates the list of species in the population, and retrieves their counts
         """
-        species_list = [agent.copy() for agent in self.census.keys()]
-        updates = dict()
+        species_list = []
+        seen_species = set()
+        for agent in self.agents:
+            if agent.spec_id not in seen_species:
+                species_list.append(agent.copy())
         new_census = dict()
         for agent in self.agents:
+            spec_count = 0
             found = False
             for species in species_list:
                 if not found:
                     dist = self.get_difference(agent, species)
                     if dist < SPECIES_THRESHOLD:
                         if species not in new_census:
-                            updates[species] = agent
-                            new_census[agent] = 1
+                            new_census[spec_count] = 1
                         else:
-                            new_census[updates[species]] += 1
+                            new_census[spec_count] += 1
                         found = True
+                spec_count += 1
             if not found:
                 species_list.append(agent)
-                updates[agent] = agent
-                new_census[agent] = 1
+                new_census[spec_count] = 1
+            agent.spec_id = spec_count
         self.census = new_census
 
     @staticmethod
