@@ -44,7 +44,7 @@ COLOR_LOOKUP = {EMPTY_TILE: DARK_GRAY,
                 TAIL_TILE: DARK_GREEN}
 
 # Population constants
-POPULATION_SIZE = 10
+POPULATION_SIZE = 30
 
 # NEAT constants
 INTERSPECIES_MATING_PROB = 0.001
@@ -54,6 +54,8 @@ NEW_EDGE_MUTATION_PROB = 0.5  # This proportion of mutations are new edges; the 
 
 EDGE_MUTATION_PROB = 0.2  # Each edge has this chance of mutating each time step
 EDGE_MUTATION_STD_DEV = 1
+EDGE_PERTURBATION_PROB = 0.95
+EDGE_RESET_STD_DEV = 1.5
 
 GENOME_WEIGHT_CHANGE_PROB = 0.8
 RANDOM_WEIGHT_PROB = 0.1
