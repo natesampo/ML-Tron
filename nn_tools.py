@@ -245,7 +245,10 @@ class Agent:
         new_agent.spec_id = self.spec_id
 
         for edge in self.edges:
-            new_agent.edges.add(edge.copy())
+            new_edge = edge.copy()
+            new_agent.edges.add(new_edge)
+            new_edge.in_node.edges_out.remove(new_edge)
+            new_edge.out_node.edges_in.remove(new_edge)
 
         for node in self.nodes:
             new_node = node.copy()
@@ -409,6 +412,8 @@ class Population:
         for edge in (agent_2.edges if agent_1.fitness > agent_2.fitness else agent_1.edges):
             if not edge.innovation in new_agent.innovations:
                 new_edge = edge.copy()
+                new_edge.in_node.edges_out.remove(new_edge)
+                new_edge.out_node.edges_in.remove(new_edge)
                 new_agent.edges.add(new_edge)
                 new_agent.innovations.add(new_edge.innovation)
                 added_edges.add(new_edge)
