@@ -240,8 +240,8 @@ class Agent:
         """ Copy agent preserving all values """
         new_agent = Agent(self.pop)
 
-        new_agent.innovations = self.innovations
-        new_agent.node_numbers = self.node_numbers
+        new_agent.innovations = self.innovations.copy()
+        new_agent.node_numbers = self.node_numbers.copy()
         new_agent.spec_id = self.spec_id
 
         for edge in self.edges:
