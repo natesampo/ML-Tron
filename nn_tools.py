@@ -222,7 +222,10 @@ class Agent:
         """ Has a chance of applying a perturbation to each edge. """
         for edge in self.edges:
             if random.random() < EDGE_MUTATION_PROB:
-                edge.weight += random.gauss(0, EDGE_MUTATION_STD_DEV)
+                if random.random() < EDGE_PERTURBATION_PROB:
+                    edge.weight += random.gauss(0, EDGE_MUTATION_STD_DEV)
+                else:
+                    edge.weight = random.gauss(0, EDGE_RESET_STD_DEV)
 
     def test_fitness(self):
         """ Runs a simulation for the Agent and returns a fitness. """
