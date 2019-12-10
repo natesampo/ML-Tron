@@ -286,6 +286,7 @@ class Population:
 
         generation_number = 0
         while True:
+            self.update_species()
             self.agents.sort(key=lambda x:x.test_fitness())
             print(f"Generation: {generation_number}")
             print(f"Highest fitness: {self.agents[-1].test_fitness()}")
@@ -428,17 +429,21 @@ class Population:
         """
         innov_1 = agent_1.innovations
         innov_2 = agent_2.innovations
+        n = max(len(innov_1), len(innov_2))
+        if n == 0:
+            return 0
 
         excess_count = len(innov_1 - innov_2)
         disjoint_count = len(innov_2 - innov_1)
         common = innov_1.intersection(innov_2)
-        total_w_diff = 0
-        for innov in common:
-            e_1 = agent_1.get_edge_by_innov(innov)
-            e_2 = agent_2.get_edge_by_innov(innov)
-            total_w_diff += abs(e_1.weight - e_2.weight)
-        ave_w_diff = total_w_diff / len(common)
-        n = max(len(innov_1), len(innov_2))
+        ave_w_diff = 0
+        if common:
+            total_w_diff = 0
+            for innov in common:
+                e_1 = agent_1.get_edge_by_innov(innov)
+                e_2 = agent_2.get_edge_by_innov(innov)
+                total_w_diff += abs(e_1.weight - e_2.weight)
+            ave_w_diff = total_w_diff / len(common)
         dist = WEIGHT_DIFFERENCE_COEFF * ave_w_diff + DISJOINT_DIFFERENCE_COEFF * (disjoint_count / n) \
                + EXCESS_DIFFERENCE_COEFF * (excess_count / n)
         return dist
