@@ -293,7 +293,7 @@ class Population:
 
         self.agents = []
         pop_size = POPULATION_SIZE
-        live_size = 10
+        live_size = int(POPULATION_KEEP * POPULATION_SIZE)
         new_agent = Agent(self)
         new_agent.create_empty(BOARD_WIDTH * BOARD_HEIGHT, 4)
         for i in range(pop_size):
