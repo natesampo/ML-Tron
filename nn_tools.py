@@ -154,12 +154,12 @@ class Agent:
         self.nodes |= self.output_nodes
 
         # Add edges to nodes corresponding to cardinal directions
-        # for node in self.input_nodes:
-        #     x_offset = node.number % BOARD_WIDTH
-        #     y_offset = (node.number // BOARD_WIDTH) % BOARD_HEIGHT
-        #     if (x_offset, y_offset) in [(1, 0), (BOARD_WIDTH - 1, 0), (0, 1), (0, BOARD_HEIGHT - 1)]:
-        #         for output_node in self.output_nodes:
-        #             self.edges.add(Edge(self.pop.new_innovation_number(), node, output_node))
+        for node in self.input_nodes:
+            x_offset = node.number % BOARD_WIDTH
+            y_offset = (node.number // BOARD_WIDTH) % BOARD_HEIGHT
+            if (x_offset, y_offset) in [(1, 0), (BOARD_WIDTH - 1, 0), (0, 1), (0, BOARD_HEIGHT - 1)]:
+                for output_node in self.output_nodes:
+                    self.edges.add(Edge(self.pop.new_innovation_number(), node, output_node))
 
     def break_edge(self, edge):
         """ Creates a new node where an edge used to be, with two new edges connecting it to the previous edge's
@@ -245,7 +245,10 @@ class Agent:
         new_agent.spec_id = self.spec_id
 
         for edge in self.edges:
-            new_agent.edges.add(edge.copy())
+            new_edge = edge.copy()
+            new_agent.edges.add(new_edge)
+            new_edge.in_node.edges_out.remove(new_edge)
+            new_edge.out_node.edges_in.remove(new_edge)
 
         for node in self.nodes:
             new_node = node.copy()
@@ -267,6 +270,23 @@ class Agent:
                 new_agent.input_nodes.add(new_node)
             if node in self.output_nodes:
                 new_agent.output_nodes.add(new_node)
+        
+        for node in self.nodes:
+            for new_edge in new_agent.edges:
+                if new_edge in node.edges_in or new_edge in node.edges_out:
+                    print(new_edge.out_node == node)
+                    print("ME ME BIG DUMB1")
+            for new_node in new_agent.nodes:
+                if new_node == node:
+                    print("ME ME BIG DUMB2")
+
+        for edge in self.edges:
+            for new_edge in new_agent.edges:
+                if new_edge == edge:
+                    print("ME ME BIG DUMB3")
+            for new_node in new_agent.nodes:
+                if new_node == edge.in_node or new_node == edge.out_node:
+                    print("ME ME BIG DUMB4")
 
         return new_agent
 
