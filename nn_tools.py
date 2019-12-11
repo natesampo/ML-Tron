@@ -238,8 +238,6 @@ class Agent:
             agent.fitness += fitnesses[i]
             agent.game = None  # Reset this value, set in Game
 
-        return self.fitness / self.pop.get_species_size(self)
-
     def copy(self):
         """ Copy agent preserving all values """
         new_agent = Agent(self.pop)
@@ -323,6 +321,10 @@ class Population:
             print(f"Highest fitness: {self.agents[-1].fitness}")
 
             self.agents = self.agents[-live_size:]
+
+            for agent in self.agents:
+                agent.fitness = 0
+
             new_agents = []
             for i in range(pop_size - live_size):
                 new_agent = random.choice(self.agents).copy()
