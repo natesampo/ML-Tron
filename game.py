@@ -97,7 +97,7 @@ class Game:
         cps = 12  # Cycles per second to run simulation. Set to None for no limit.
         cycle = 0
 
-        while len(self.players) > 1:
+        while len(self.players) > 0:
 
             # Check keyboard inputs and window closing
             events = pygame.event.get()
@@ -106,8 +106,9 @@ class Game:
             # Update players
             for player in self.players[::-1]:
                 player.update(events)
-                player.move()
-                self.last_active_player = player
+                if player in self.players:
+                    player.move()
+                    self.last_active_player = player
             if Game.simulate:
                 self.display.update(Game.vis_mode)
 
@@ -122,7 +123,7 @@ class Game:
             cycle += 1
 
         self.display.update(Game.vis_mode)
-        return [((not bot.has_been_hit) * WIN_SCORE + cycle * SURVIVAL_SCORE) for bot in self.bot_list]
+        return [bot.age * SURVIVAL_SCORE for bot in self.bot_list]
 
 
 if __name__=="__main__":

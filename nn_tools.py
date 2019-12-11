@@ -293,6 +293,7 @@ class Population:
         self.innovation_count = 0
         self.node_count = 0
         self.generation = 0
+        self.species_prev = []
 
     def simulate(self, players):
 
@@ -319,6 +320,7 @@ class Population:
 
             print(f"Generation: {generation_number}")
             print(f"Highest fitness: {self.agents[-1].fitness}")
+            print(f"Species count: {len(self.census)}")
 
             self.agents = self.agents[-live_size:]
 
@@ -326,12 +328,24 @@ class Population:
                 agent.fitness = 0
 
             new_agents = []
-            for i in range(pop_size - live_size):
+            for species, pop in self.census.items():
+                if pop >= 5:
+                    to_keep = math.ceil(POPULATION_KEEP * pop)
+                    kept = 0
+                    idx = len(self.agents) - 1
+                    while kept < to_keep and idx >= 0:
+                        if self.agents[idx].spec_id == species:
+                            new_agents.append(self.agents[idx].copy())
+                            kept += 1
+                        idx -= 1
+                else:
+                    pass
+            for i in range(pop_size - len(new_agents)):
                 new_agent = random.choice(self.agents).copy()
                 new_agent.mutate()
                 new_agents.append(new_agent)
 
-            self.agents += new_agents
+            self.agents = new_agents
             generation_number += 1
 
     def new_innovation_number(self):
@@ -372,6 +386,7 @@ class Population:
             self.node_count = loaded_pop.node_count
             self.generation = loaded_pop.generation
             self.census = loaded_pop.census
+            self.species_prev = loaded_pop.species_prev
 
     def get_species_size(self, agent):
         """ Returns the size of an agents species
@@ -384,19 +399,14 @@ class Population:
     def update_species(self):
         """ Updates the list of species in the population, and retrieves their counts
         """
-        species_list = []
-        seen_species = set()
-        for agent in self.agents:
-            if agent.spec_id not in seen_species:
-                seen_species.add(agent.spec_id)
-                species_list.append(agent.copy())
+        species_list = self.species_prev.copy()
         new_census = dict()
         for agent in self.agents:
             found = False
             for idx, species in enumerate(species_list):
                 if not found:
                     dist = self.get_difference(agent, species)
-                    if dist < 2:
+                    if dist < 1:
                         if idx not in new_census:
                             new_census[idx] = 1
                         else:
@@ -408,6 +418,7 @@ class Population:
                 new_census[len(species_list)] = 1
                 agent.spec_id = len(species_list)
         self.census = new_census
+        self.species_prev = species_list
 
     @staticmethod
     def reproduction(agent_1, agent_2):

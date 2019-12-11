@@ -10,6 +10,7 @@ class Player(object):
         self.controller = controller.KeyboardController()
         self.has_been_hit = False
         self.id = id
+        self.age = 0
 
     def __str__(self):
         return PLAYER_TILE
@@ -37,6 +38,8 @@ class Player(object):
             collision_tile[0].has_been_hit = True
         else:
             self.die()
+
+        self.age += 1
 
     def die(self):
         # self.game.board[self.x][self.y] = (TAIL_TILE, self.id)
