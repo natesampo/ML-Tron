@@ -76,7 +76,7 @@ class Game:
         cps = 25  # Cycles per second to run simulation. Set to None for no limit.
         cycle = 0
 
-        while self.players:
+        while self.players > 1:
 
             # Check keyboard inputs and window closing
             events = pygame.event.get()
@@ -99,7 +99,7 @@ class Game:
 
             cycle += 1
         self.display.update()
-        return cycle * SURVIVAL_SCORE
+        return [((not player.has_been_hit) * WIN_SCORE + cycle * SURVIVAL_SCORE) for player in self.players]
 
 
 if __name__=="__main__":

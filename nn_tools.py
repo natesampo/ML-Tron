@@ -228,13 +228,15 @@ class Agent:
                 else:
                     edge.weight = random.gauss(0, EDGE_RESET_STD_DEV)
 
-    def test_fitness(self):
+    def test_fitness(self, *args):
         """ Runs a simulation for the Agent and returns a fitness. """
         g = game.Game()
-        g.add_players(False, self)
-        self.fitness = g.main()
-        self.game = None  # Reset this value, set in Game
-        return self.fitness
+        g.add_players(False, args)
+
+        fitnesses = g.main()
+        for i, player in args:
+            player.fitness = fitnesses[i]
+            player.game = None  # Reset this value, set in Game
 
     def copy(self):
         """ Copy agent preserving all values """
@@ -286,38 +288,50 @@ class Agent:
 class Population:
 
     def __init__(self):
-        self.agents = []
+        self.players = []
         self.census = dict()
         self.innovation_count = 0
         self.node_count = 0
         self.generation = 0
 
-    def simulate(self):
+    def simulate(self, players):
 
-        self.agents = []
+        self.players = []
         pop_size = POPULATION_SIZE
         live_size = int(POPULATION_KEEP * POPULATION_SIZE)
-        new_agent = Agent(self)
-        new_agent.create_empty(BOARD_WIDTH * BOARD_HEIGHT, 4)
-        for i in range(pop_size):
-            self.agents.append(new_agent.copy())
+
+        new_agents = []
+        for i in range(len(self.players)):
+            self.players.append([])
+            new_agent = Agent(self)
+            new_agent.create_empty(BOARD_WIDTH * BOARD_HEIGHT, 4)
+            while len(self.players[i] < pop_size):
+                self.players[i].append(new_agent.copy())
 
         generation_number = 0
         while True:
-            # self.update_species()
-            for agent in self.agents:
-                agent.test_fitness()
-            self.agents.sort(key=lambda x:x.fitness)
-            print(f"Generation: {generation_number}")
-            print(f"Highest fitness: {self.agents[-1].fitness}")
-            self.agents = self.agents[-live_size:]
-            new_agents = []
-            for i in range(pop_size - live_size):
-                new_agent = random.choice(self.agents).copy()
-                new_agent.mutate()
-                new_agents.append(new_agent)
-            self.agents += new_agents
-            generation_number += 1
+            player_number = 0
+            for i, player in range(len(self.players)):
+                # self.update_species()
+
+                for agent in player:
+                    agent.test_fitness()
+
+                player.sort(key=lambda x:x.fitness)
+
+                print(f"Player: {i}")
+                print(f"Generation: {generation_number}")
+                print(f"Highest fitness: {player[-1].fitness}")
+
+                self.players[i] = player[-live_size:]
+                new_agents = []
+                for i in range(pop_size - live_size):
+                    new_agent = random.choice(self.players[i]).copy()
+                    new_agent.mutate()
+                    new_agents.append(new_agent)
+
+                self.players[i] += new_agents
+                generation_number += 1
 
     def new_innovation_number(self):
         """ Increments the innovation counter, then returns the previous value.
@@ -339,13 +353,6 @@ class Population:
         self.node_count += 1
         return result
 
-    def instantiate_population(self):
-        """ Create initial population and populate with empty agents """
-        new_agent = Agent(self)
-        new_agent.create_empty(10, 4)
-        # TODO Copy first agent and mutate for initial population
-        self.agents.append(new_agent)
-
     def save_population(self):
         """ Create pickle file of entire population
         """
@@ -359,7 +366,7 @@ class Population:
         filename = "population_gen" + str(generation) + ".pkl"
         with open(filename, 'rb') as file:
             loaded_pop = pickle.load(file)
-            self.agents = loaded_pop.agents
+            self.players = loaded_pop.players
             self.innovation_count = loaded_pop.innovation_count
             self.node_count = loaded_pop.node_count
             self.generation = loaded_pop.generation
@@ -375,28 +382,31 @@ class Population:
         """
         species_list = []
         seen_species = set()
-        for agent in self.agents:
-            if agent.spec_id not in seen_species:
-                species_list.append(agent.copy())
-        new_census = dict()
-        for agent in self.agents:
-            spec_count = 0
-            found = False
-            for species in species_list:
+        for player in self.players:
+            for agent in player:
+                if agent.spec_id not in seen_species:
+                    species_list.append(agent.copy())
+
+        for player in self.players:
+            new_census = dict()
+            for agent in player:
+                spec_count = 0
+                found = False
+                for species in species_list:
+                    if not found:
+                        dist = self.get_difference(agent, species)
+                        if dist < SPECIES_THRESHOLD:
+                            if species not in new_census:
+                                new_census[spec_count] = 1
+                            else:
+                                new_census[spec_count] += 1
+                            found = True
+                    spec_count += 1
                 if not found:
-                    dist = self.get_difference(agent, species)
-                    if dist < SPECIES_THRESHOLD:
-                        if species not in new_census:
-                            new_census[spec_count] = 1
-                        else:
-                            new_census[spec_count] += 1
-                        found = True
-                spec_count += 1
-            if not found:
-                species_list.append(agent)
-                new_census[spec_count] = 1
-            agent.spec_id = spec_count
-        self.census = new_census
+                    species_list.append(agent)
+                    new_census[spec_count] = 1
+                agent.spec_id = spec_count
+            self.census = new_census
 
     @staticmethod
     def reproduction(agent_1, agent_2):
@@ -476,4 +486,4 @@ class Population:
 
 if __name__=="__main__":
     p = Population()
-    p.simulate()
+    p.simulate(1)
