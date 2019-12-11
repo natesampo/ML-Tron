@@ -18,12 +18,16 @@ class Game:
     vis_mode = False
     last_active_player = None
     auto_player = False
+    display = None
 
     def __init__(self):
         pygame.init()
-        self.display = display.WindowDisplay(self)
-        self.generate_board()
+        if Game.display is None:
+            Game.display = display.WindowDisplay(self)
+        else:
+            Game.display.reset(self)
 
+        self.generate_board()
         self.players = []
         self.bot_list = []
 
@@ -32,6 +36,8 @@ class Game:
             args: any number of agent models for controllers.
         """
         spawn_locations = list(SPAWN_LOCATIONS)[::-1]
+        if RANDOMIZE_SPAWN_LOCATION:
+            random.shuffle(spawn_locations)
         if human_player:
             x, y = spawn_locations.pop()
             self.add_player(x, y)

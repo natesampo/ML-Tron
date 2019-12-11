@@ -41,16 +41,20 @@ class WindowDisplay(Display):
         pygame.draw.ellipse(self.node_surf, (100, 100, 100), (0, 0, 25, 25))
         self.active_node_surf = pygame.Surface((25, 25))
         pygame.draw.ellipse(self.active_node_surf, (255, 255, 255), (0, 0, 25, 25))
-        self.node_innovation_to_position = {}
+        self.reset(game)
+
+    def reset(self, game):
+        self.game = game
         self.node_count = 0
+        self.node_innovation_to_position = {}
 
     def tile_to_color(self, tile):
         hues = [(1, 1, 1), (0.3, 0.6, 1), (1, 0.4, 0.3), (0.4, 0.9, 0.3), (1, 1, 0), (1, 0, 1), (0, 1, 1)]
         vals = {PLAYER_TILE: 200,
                 TAIL_TILE: 128,
-                EMPTY_TILE: 30}
+                EMPTY_TILE: 40}
         hue = hues[tile[1]]
-        val = vals[tile[0]]
+        val = vals[str(tile[0])]
         return tuple([int(h * val) for h in hue])
 
     def update(self, vis_mode=False):
