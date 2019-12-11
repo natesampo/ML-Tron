@@ -308,8 +308,8 @@ class Population:
             for agent in self.agents:
                 agent.test_fitness()
             self.agents.sort(key=lambda x:x.fitness)
-            # print(f"Generation: {generation_number}")
-            # print(f"Highest fitness: {self.agents[-1].fitness}")
+            print(f"Generation: {generation_number}")
+            print(f"Highest fitness: {self.agents[-1].fitness}")
             self.agents = self.agents[-live_size:]
             new_agents = []
             for i in range(pop_size - live_size):
