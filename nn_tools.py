@@ -3,6 +3,7 @@ import random
 import game
 import pickle
 from constants import *
+from controller import node_number_to_board_offset
 
 
 class Node:
@@ -34,10 +35,10 @@ class Node:
         """ Resets the stored value. """
         self.val = None
 
-    def __repr__(self):
-        return f"\nNode (I={self.number}, " \
-               f"in={sorted([item.in_node.number for item in self.edges_in])}, " \
-               f"out={sorted([item.out_node.number for item in self.edges_out])}"
+    # def __repr__(self):
+    #     return f"\nNode (I={self.number}, " \
+    #            f"in={sorted([item.in_node.number for item in self.edges_in])}, " \
+    #            f"out={sorted([item.out_node.number for item in self.edges_out])}"
 
     def check_valid_edge(self, destination_node):
         """ Checks to see if new edge is legal """
@@ -155,8 +156,7 @@ class Agent:
 
         # Add edges to nodes corresponding to cardinal directions
         for node in self.input_nodes:
-            x_offset = node.number % BOARD_WIDTH
-            y_offset = (node.number // BOARD_WIDTH) % BOARD_HEIGHT
+            x_offset, y_offset = node_number_to_board_offset(node.number)
             if (x_offset, y_offset) in [(1, 0), (BOARD_WIDTH - 1, 0), (0, 1), (0, BOARD_HEIGHT - 1)]:
                 for output_node in self.output_nodes:
                     self.edges.add(Edge(self.pop.new_innovation_number(), node, output_node))
@@ -237,6 +237,8 @@ class Agent:
         for i, player in args:
             player.fitness = fitnesses[i]
             player.game = None  # Reset this value, set in Game
+
+        return self.fitness / self.pop.get_species_size(self)
 
     def copy(self):
         """ Copy agent preserving all values """
@@ -375,6 +377,9 @@ class Population:
     def get_species_size(self, agent):
         """ Returns the size of an agents species
         """
+        if agent.spec_id not in self.census:
+            print("Something is wrong with the species ID")
+            return 1
         return self.census[agent.spec_id]
 
     def update_species(self):
@@ -382,6 +387,7 @@ class Population:
         """
         species_list = []
         seen_species = set()
+
         for player in self.players:
             for agent in player:
                 if agent.spec_id not in seen_species:

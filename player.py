@@ -2,13 +2,14 @@ import controller
 from constants import *
 
 class Player(object):
-    def __init__(self, x, y, game):
+    def __init__(self, x, y, game, id=0):
         self.x = x
         self.y = y
         self.game = game
-        self.game.board[x][y] = self
+        self.game.board[x][y] = (self, id)
         self.controller = controller.KeyboardController()
         self.has_been_hit = False
+        self.id = id
 
     def __str__(self):
         return PLAYER_TILE
@@ -21,7 +22,7 @@ class Player(object):
 
     def move(self):
         """ Moves in a direction determined by the controller. Then, if the new location is occupied, dies. """
-        self.game.board[self.x][self.y] = TAIL_TILE
+        self.game.board[self.x][self.y] = (TAIL_TILE, self.id)
 
         my_move = self.controller.get_move()
         self.x += my_move[0]
@@ -29,14 +30,14 @@ class Player(object):
 
         # Move to new tile if not empty
         collision_tile = self.game.board[self.x][self.y]
-        if str(collision_tile) is EMPTY_TILE:
-            self.game.board[self.x][self.y] = PLAYER_TILE
-        elif str(collision_tile) is PLAYER_TILE:
+        if str(collision_tile[0]) is EMPTY_TILE:
+            self.game.board[self.x][self.y] = (PLAYER_TILE, self.id)
+        elif str(collision_tile[0]) is PLAYER_TILE:
             self.die()
-            collision_tile.has_been_hit = True
+            collision_tile[0].has_been_hit = True
         else:
             self.die()
 
     def die(self):
-        self.game.board[self.x][self.y] = TAIL_TILE
+        # self.game.board[self.x][self.y] = (TAIL_TILE, self.id)
         self.game.players.remove(self)

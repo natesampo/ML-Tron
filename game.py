@@ -13,8 +13,11 @@ from constants import *
 class Game:
 
     board = None
-    player_count = 1
+    player_count = 0
     simulate = False
+    vis_mode = False
+    last_active_player = None
+    auto_player = False
 
     def __init__(self):
         pygame.init()
@@ -36,29 +39,34 @@ class Game:
                 x, y = spawn_locations.pop()
                 self.add_agent_player(x, y, agent)
                 agent.game = self
+        if Game.auto_player:
+            x, y = spawn_locations.pop()
+            self.add_player(x, y)
 
     def generate_board(self):
         """ Generates an array of EMPTY tiles of size BOARD_SIZE with walls along the outside
             and assigns it to self.board.
         """
 
-        self.board = [[EMPTY_TILE for _ in range(BOARD_HEIGHT)] for _ in range(BOARD_WIDTH)]
+        self.board = [[(EMPTY_TILE, 0) for _ in range(BOARD_HEIGHT)] for _ in range(BOARD_WIDTH)]
 
         # Add tail tiles around the edges
         for x, column in enumerate(self.board):
             for y, _ in enumerate(column):
                 if x == 0 or y == 0 or x == BOARD_WIDTH - 1 or y == BOARD_HEIGHT - 1:
-                    self.board[x][y] = TAIL_TILE
+                    self.board[x][y] = (TAIL_TILE, 0)
 
     def add_player(self, x, y):
         """ Adds a new player at position x, y """
-        self.players.append(player.Player(x, y, self))
+        self.players.append(player.Player(x, y, self, id=len(self.players) + 1))
+        self.player_count += 1
 
     def add_agent_player(self, x, y, agent):
         """ Adds a new player, controlled by a NEAT agent, at position x, y """
-        new_player = player.Player(x, y, self)
+        new_player = player.Player(x, y, self, id=len(self.players) + 1)
         new_player.controller = controller.AgentController(agent)
         self.players.append(new_player)
+        self.player_count += 1
 
     def check_globals(self, events):
         """ Given a list of PyGame events, closes the program if it contains a QUIT event. """
@@ -69,11 +77,16 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
                     Game.simulate = not Game.simulate
+                elif event.key == pygame.K_2:
+                    print(f"Vis mode {not Game.vis_mode}")
+                    Game.vis_mode = not Game.vis_mode
+                elif event.key == pygame.K_3:
+                    Game.auto_player = not Game.auto_player
 
     def main(self):
         """ Runs the main loop. """
         start = time.time()
-        cps = 25  # Cycles per second to run simulation. Set to None for no limit.
+        cps = 12  # Cycles per second to run simulation. Set to None for no limit.
         cycle = 0
 
         while self.players > 1:
@@ -86,8 +99,9 @@ class Game:
             for player in self.players[::-1]:
                 player.update(events)
                 player.move()
+                self.last_active_player = player
             if Game.simulate:
-                self.display.update()
+                self.display.update(Game.vis_mode)
 
             # Run at a fixed number of cycles per second
             if Game.simulate:
@@ -98,7 +112,7 @@ class Game:
                 start = time.time()
 
             cycle += 1
-        self.display.update()
+        self.display.update(Game.vis_mode)
         return [((not player.has_been_hit) * WIN_SCORE + cycle * SURVIVAL_SCORE) for player in self.players]
 
 

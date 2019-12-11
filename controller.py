@@ -5,6 +5,8 @@ from constants import *
 class Controller:
     """ Class for controlling a player. """
 
+    agent = None
+
     def __init__(self):
         self.direction = UP
 
@@ -53,6 +55,14 @@ class WASDController(KeyboardController):
                        DOWN: pygame.K_s}
 
 
+def node_number_to_board_offset(n):
+    """ Given a node innovation number, calculates the offset from the player of the corresponding node. """
+    n = n - NUM_OUTPUT_NODES
+    x_offset = n % BOARD_WIDTH
+    y_offset = (n//BOARD_WIDTH) % BOARD_HEIGHT
+    return x_offset, y_offset
+
+
 class AgentController(Controller):
     def __init__(self, agent):
         super().__init__()
@@ -65,8 +75,7 @@ class AgentController(Controller):
         """
         relevant_player = [player for player in self.agent.game.players if player.controller.agent is self.agent][0]
         origin = relevant_player.x, relevant_player.y
-        x_offset = n % BOARD_WIDTH
-        y_offset = (n // BOARD_WIDTH) % BOARD_HEIGHT
+        x_offset, y_offset = node_number_to_board_offset(n)
         x = (origin[0] + x_offset) % BOARD_WIDTH
         y = (origin[1] + y_offset) % BOARD_HEIGHT
         return x, y
@@ -83,9 +92,8 @@ class AgentController(Controller):
 
         # Update the set of input nodes to represent the board state
         for node in self.agent.input_nodes:
-            num = node.number - NUM_OUTPUT_NODES
-            pos = self.node_number_to_board_position(num)
-            node.val = TILE_TYPE_TO_WEIGHT[self.agent.game.board[pos[0]][pos[1]]]
+            pos = self.node_number_to_board_position(node.number)
+            node.val = TILE_TYPE_TO_WEIGHT[str(self.agent.game.board[pos[0]][pos[1]][0])]
 
         # Check highest output value and move in that direction
         max_value = None
