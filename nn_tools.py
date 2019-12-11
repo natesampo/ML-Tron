@@ -34,10 +34,10 @@ class Node:
         """ Resets the stored value. """
         self.val = None
 
-    def __repr__(self):
-        return f"\nNode (I={self.number}, " \
-               f"in={sorted([item.in_node.number for item in self.edges_in])}, " \
-               f"out={sorted([item.out_node.number for item in self.edges_out])}"
+    # def __repr__(self):
+    #     return f"\nNode (I={self.number}, " \
+    #            f"in={sorted([item.in_node.number for item in self.edges_in])}, " \
+    #            f"out={sorted([item.out_node.number for item in self.edges_out])}"
 
     def check_valid_edge(self, destination_node):
         """ Checks to see if new edge is legal """
@@ -154,12 +154,12 @@ class Agent:
         self.nodes |= self.output_nodes
 
         # Add edges to nodes corresponding to cardinal directions
-        for node in self.input_nodes:
-            x_offset = node.number % BOARD_WIDTH
-            y_offset = (node.number // BOARD_WIDTH) % BOARD_HEIGHT
-            if (x_offset, y_offset) in [(1, 0), (BOARD_WIDTH - 1, 0), (0, 1), (0, BOARD_HEIGHT - 1)]:
-                for output_node in self.output_nodes:
-                    self.edges.add(Edge(self.pop.new_innovation_number(), node, output_node))
+        # for node in self.input_nodes:
+        #     x_offset = node.number % BOARD_WIDTH
+        #     y_offset = (node.number // BOARD_WIDTH) % BOARD_HEIGHT
+        #     if (x_offset, y_offset) in [(1, 0), (BOARD_WIDTH - 1, 0), (0, 1), (0, BOARD_HEIGHT - 1)]:
+        #         for output_node in self.output_nodes:
+        #             self.edges.add(Edge(self.pop.new_innovation_number(), node, output_node))
 
     def break_edge(self, edge):
         """ Creates a new node where an edge used to be, with two new edges connecting it to the previous edge's
@@ -234,7 +234,7 @@ class Agent:
         g.add_players(False, self)
         self.fitness = g.main()
         self.game = None  # Reset this value, set in Game
-        return self.fitness
+        return self.fitness / self.pop.get_species_size(self)
 
     def copy(self):
         """ Copy agent preserving all values """
@@ -245,7 +245,10 @@ class Agent:
         new_agent.spec_id = self.spec_id
 
         for edge in self.edges:
-            new_agent.edges.add(edge.copy())
+            new_edge = edge.copy()
+            new_agent.edges.add(new_edge)
+            new_edge.in_node.edges_out.remove(new_edge)
+            new_edge.out_node.edges_in.remove(new_edge)
 
         for node in self.nodes:
             new_node = node.copy()
@@ -301,12 +304,12 @@ class Population:
 
         generation_number = 0
         while True:
-            # self.update_species()
+            self.update_species()
             for agent in self.agents:
                 agent.test_fitness()
             self.agents.sort(key=lambda x:x.fitness)
-            print(f"Generation: {generation_number}")
-            print(f"Highest fitness: {self.agents[-1].fitness}")
+            # print(f"Generation: {generation_number}")
+            # print(f"Highest fitness: {self.agents[-1].fitness}")
             self.agents = self.agents[-live_size:]
             new_agents = []
             for i in range(pop_size - live_size):
@@ -365,6 +368,9 @@ class Population:
     def get_species_size(self, agent):
         """ Returns the size of an agents species
         """
+        if agent.spec_id not in self.census:
+            print("Something is wrong with the species ID")
+            return 1
         return self.census[agent.spec_id]
 
     def update_species(self):
@@ -374,25 +380,25 @@ class Population:
         seen_species = set()
         for agent in self.agents:
             if agent.spec_id not in seen_species:
+                seen_species.add(agent.spec_id)
                 species_list.append(agent.copy())
         new_census = dict()
         for agent in self.agents:
-            spec_count = 0
             found = False
-            for species in species_list:
+            for idx, species in enumerate(species_list):
                 if not found:
                     dist = self.get_difference(agent, species)
-                    if dist < SPECIES_THRESHOLD:
-                        if species not in new_census:
-                            new_census[spec_count] = 1
+                    if dist < 2:
+                        if idx not in new_census:
+                            new_census[idx] = 1
                         else:
-                            new_census[spec_count] += 1
+                            new_census[idx] += 1
                         found = True
-                spec_count += 1
+                        agent.spec_id = idx
             if not found:
                 species_list.append(agent)
-                new_census[spec_count] = 1
-            agent.spec_id = spec_count
+                new_census[len(species_list)] = 1
+                agent.spec_id = len(species_list)
         self.census = new_census
 
     @staticmethod
@@ -406,6 +412,8 @@ class Population:
         for edge in (agent_2.edges if agent_1.fitness > agent_2.fitness else agent_1.edges):
             if not edge.innovation in new_agent.innovations:
                 new_edge = edge.copy()
+                new_edge.in_node.edges_out.remove(new_edge)
+                new_edge.out_node.edges_in.remove(new_edge)
                 new_agent.edges.add(new_edge)
                 new_agent.innovations.add(new_edge.innovation)
                 added_edges.add(new_edge)
