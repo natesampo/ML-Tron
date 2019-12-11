@@ -3,6 +3,7 @@ import random
 import game
 import pickle
 from constants import *
+from controller import node_number_to_board_offset
 
 
 class Node:
@@ -154,12 +155,11 @@ class Agent:
         self.nodes |= self.output_nodes
 
         # Add edges to nodes corresponding to cardinal directions
-        # for node in self.input_nodes:
-        #     x_offset = node.number % BOARD_WIDTH
-        #     y_offset = (node.number // BOARD_WIDTH) % BOARD_HEIGHT
-        #     if (x_offset, y_offset) in [(1, 0), (BOARD_WIDTH - 1, 0), (0, 1), (0, BOARD_HEIGHT - 1)]:
-        #         for output_node in self.output_nodes:
-        #             self.edges.add(Edge(self.pop.new_innovation_number(), node, output_node))
+        for node in self.input_nodes:
+            x_offset, y_offset = node_number_to_board_offset(node.number)
+            if (x_offset, y_offset) in [(1, 0), (BOARD_WIDTH - 1, 0), (0, 1), (0, BOARD_HEIGHT - 1)]:
+                for output_node in self.output_nodes:
+                    self.edges.add(Edge(self.pop.new_innovation_number(), node, output_node))
 
     def break_edge(self, edge):
         """ Creates a new node where an edge used to be, with two new edges connecting it to the previous edge's

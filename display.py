@@ -3,6 +3,7 @@ import time
 import pygame
 
 from constants import *
+from controller import node_number_to_board_offset
 
 class Display:
 
@@ -72,12 +73,13 @@ class WindowDisplay(Display):
                 agent = active_player.controller.agent
                 self.draw_output_nodes(agent)
                 self.draw_intermediary_nodes(agent)
+                self.draw_edges(agent)
 
         pygame.display.flip()
 
     def draw_output_nodes(self, agent):
         best_node = max(list(agent.output_nodes), key=lambda x:x.val)
-        names = ["UP", "DOWN", "LEFT", "RIGHT"]
+        names = ["UP", "LEFT", "RIGHT", "DOWN"]
         x = int(WINDOW_WIDTH*0.85)
         y = int(WINDOW_WIDTH*0.28)
         for name in names:
@@ -113,7 +115,30 @@ class WindowDisplay(Display):
                 yoff = 0
                 xoff += 50
 
+    def draw_edges(self, agent):
+        for edge in agent.edges:
+            pos_1 = self.innovation_to_position(edge.in_node.number)
+            if pos_1[0] < WINDOW_WIDTH//2:
+                highlight = pygame.Surface((TILE_SIZE, TILE_SIZE))
+                highlight.fill((255, 255, 255))
+                highlight.set_alpha(25)
+                self.screen.blit(highlight, (pos_1[0] - TILE_SIZE//2, pos_1[1] - TILE_SIZE//2))
+            pos_2 = self.innovation_to_position(edge.out_node.number)
+            color = (0, 255, 0) if edge.weight > 0 else (255, 0, 0)
+            if not edge.enabled:
+                color = (100, 100, 100)
+            width = min(int(abs(edge.weight)) + 1, 5)
+            pygame.draw.line(self.screen, color, pos_1, pos_2, width)
+
     def innovation_to_position(self, inn):
         if inn in self.node_innovation_to_position:
-            return self.node_innovation_to_position[inn]
+            x, y = self.node_innovation_to_position[inn]
+            return x + 12, y + 12
+        else:
+            x_pos, y_pos = node_number_to_board_offset(inn)
+            x_pos = (x_pos + BOARD_WIDTH//2) % BOARD_WIDTH
+            y_pos = (y_pos + BOARD_WIDTH//2) % BOARD_WIDTH
+            x = x_pos * TILE_SIZE + WINDOW_WIDTH//4 - (TILE_SIZE * BOARD_WIDTH)//2
+            y = y_pos * TILE_SIZE + WINDOW_HEIGHT//2 - (TILE_SIZE * BOARD_WIDTH)//2
+            return x + TILE_SIZE//2, y + TILE_SIZE//2
 

@@ -53,7 +53,7 @@ COLOR_LOOKUP = {EMPTY_TILE: DARK_GRAY,
                 TAIL_TILE: DARK_GREEN}
 
 # Population constants
-POPULATION_SIZE = 40
+POPULATION_SIZE = 100
 POPULATION_KEEP = 0.2
 
 # NEAT constants
