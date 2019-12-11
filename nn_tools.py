@@ -228,15 +228,15 @@ class Agent:
                 else:
                     edge.weight = random.gauss(0, EDGE_RESET_STD_DEV)
 
-    def test_fitness(self, *args):
+    def test_fitness(self, player_list):
         """ Runs a simulation for the Agent and returns a fitness. """
         g = game.Game()
-        g.add_players(False, args)
+        g.add_players(human_player=False, bot_list=player_list)
 
         fitnesses = g.main()
-        for i, player in args:
-            player.fitness = fitnesses[i]
-            player.game = None  # Reset this value, set in Game
+        for i, agent in enumerate(player_list):
+            agent.fitness += fitnesses[i]
+            agent.game = None  # Reset this value, set in Game
 
         return self.fitness / self.pop.get_species_size(self)
 
@@ -290,7 +290,7 @@ class Agent:
 class Population:
 
     def __init__(self):
-        self.players = []
+        self.agents = []
         self.census = dict()
         self.innovation_count = 0
         self.node_count = 0
@@ -298,42 +298,39 @@ class Population:
 
     def simulate(self, players):
 
-        self.players = []
+        self.agents = []
         pop_size = POPULATION_SIZE
         live_size = int(POPULATION_KEEP * POPULATION_SIZE)
 
-        new_agents = []
-        for i in range(len(self.players)):
-            self.players.append([])
-            new_agent = Agent(self)
-            new_agent.create_empty(BOARD_WIDTH * BOARD_HEIGHT, 4)
-            while len(self.players[i] < pop_size):
-                self.players[i].append(new_agent.copy())
+        new_agent = Agent(self)
+        new_agent.create_empty(BOARD_WIDTH * BOARD_HEIGHT, 4)
+        for i in range(pop_size):
+            self.agents.append(new_agent.copy())
 
         generation_number = 0
         while True:
-            player_number = 0
-            for i, player in range(len(self.players)):
-                # self.update_species()
+            self.update_species()
 
-                for agent in player:
-                    agent.test_fitness()
+            random.shuffle(self.agents)
 
-                player.sort(key=lambda x:x.fitness)
+            for i in range(len(self.agents)):
+                for j in range(1, PLAY_WINDOW+1):
+                    self.agents[i].test_fitness([self.agents[i], self.agents[(i+j)%len(self.agents)]])
 
-                print(f"Player: {i}")
-                print(f"Generation: {generation_number}")
-                print(f"Highest fitness: {player[-1].fitness}")
+            self.agents.sort(key=lambda x:x.fitness)
 
-                self.players[i] = player[-live_size:]
-                new_agents = []
-                for i in range(pop_size - live_size):
-                    new_agent = random.choice(self.players[i]).copy()
-                    new_agent.mutate()
-                    new_agents.append(new_agent)
+            print(f"Generation: {generation_number}")
+            print(f"Highest fitness: {self.agents[-1].fitness}")
 
-                self.players[i] += new_agents
-                generation_number += 1
+            self.agents = self.agents[-live_size:]
+            new_agents = []
+            for i in range(pop_size - live_size):
+                new_agent = random.choice(self.agents).copy()
+                new_agent.mutate()
+                new_agents.append(new_agent)
+
+            self.agents += new_agents
+            generation_number += 1
 
     def new_innovation_number(self):
         """ Increments the innovation counter, then returns the previous value.
@@ -368,7 +365,7 @@ class Population:
         filename = "population_gen" + str(generation) + ".pkl"
         with open(filename, 'rb') as file:
             loaded_pop = pickle.load(file)
-            self.players = loaded_pop.players
+            self.agents = loaded_pop.agents
             self.innovation_count = loaded_pop.innovation_count
             self.node_count = loaded_pop.node_count
             self.generation = loaded_pop.generation
@@ -387,32 +384,28 @@ class Population:
         """
         species_list = []
         seen_species = set()
-
-        for player in self.players:
-            for agent in player:
-                if agent.spec_id not in seen_species:
-                    species_list.append(agent.copy())
-
-        for player in self.players:
-            new_census = dict()
-            for agent in player:
-                spec_count = 0
-                found = False
-                for species in species_list:
-                    if not found:
-                        dist = self.get_difference(agent, species)
-                        if dist < SPECIES_THRESHOLD:
-                            if species not in new_census:
-                                new_census[spec_count] = 1
-                            else:
-                                new_census[spec_count] += 1
-                            found = True
-                    spec_count += 1
+        for agent in self.agents:
+            if agent.spec_id not in seen_species:
+                seen_species.add(agent.spec_id)
+                species_list.append(agent.copy())
+        new_census = dict()
+        for agent in self.agents:
+            found = False
+            for idx, species in enumerate(species_list):
                 if not found:
-                    species_list.append(agent)
-                    new_census[spec_count] = 1
-                agent.spec_id = spec_count
-            self.census = new_census
+                    dist = self.get_difference(agent, species)
+                    if dist < 2:
+                        if idx not in new_census:
+                            new_census[idx] = 1
+                        else:
+                            new_census[idx] += 1
+                        found = True
+                        agent.spec_id = idx
+            if not found:
+                species_list.append(agent)
+                new_census[len(species_list)] = 1
+                agent.spec_id = len(species_list)
+        self.census = new_census
 
     @staticmethod
     def reproduction(agent_1, agent_2):

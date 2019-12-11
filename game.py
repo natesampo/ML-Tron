@@ -25,8 +25,9 @@ class Game:
         self.generate_board()
 
         self.players = []
+        self.bot_list = []
 
-    def add_players(self, human_player=False, *args):
+    def add_players(self, human_player=False, bot_list=[]):
         """ Adds a human player if specified, than any number of players controlled by agents.
             args: any number of agent models for controllers.
         """
@@ -35,7 +36,7 @@ class Game:
             x, y = spawn_locations.pop()
             self.add_player(x, y)
         else:
-            for agent in args:
+            for agent in bot_list:
                 x, y = spawn_locations.pop()
                 self.add_agent_player(x, y, agent)
                 agent.game = self
@@ -65,6 +66,7 @@ class Game:
         """ Adds a new player, controlled by a NEAT agent, at position x, y """
         new_player = player.Player(x, y, self, id=len(self.players) + 1)
         new_player.controller = controller.AgentController(agent)
+        self.bot_list.append(new_player)
         self.players.append(new_player)
         self.player_count += 1
 
@@ -89,7 +91,7 @@ class Game:
         cps = 12  # Cycles per second to run simulation. Set to None for no limit.
         cycle = 0
 
-        while self.players > 1:
+        while len(self.players) > 1:
 
             # Check keyboard inputs and window closing
             events = pygame.event.get()
@@ -112,8 +114,9 @@ class Game:
                 start = time.time()
 
             cycle += 1
+
         self.display.update(Game.vis_mode)
-        return [((not player.has_been_hit) * WIN_SCORE + cycle * SURVIVAL_SCORE) for player in self.players]
+        return [((not bot.has_been_hit) * WIN_SCORE + cycle * SURVIVAL_SCORE) for bot in self.bot_list]
 
 
 if __name__=="__main__":
