@@ -15,6 +15,8 @@ class Game:
     board = None
     player_count = 1
     simulate = False
+    vis_mode = False
+    last_active_player = None
 
     def __init__(self):
         pygame.init()
@@ -69,6 +71,9 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
                     Game.simulate = not Game.simulate
+                elif event.key == pygame.K_2:
+                    print(f"Vis mode {not Game.vis_mode}")
+                    Game.vis_mode = not Game.vis_mode
 
     def main(self):
         """ Runs the main loop. """
@@ -86,8 +91,9 @@ class Game:
             for player in self.players[::-1]:
                 player.update(events)
                 player.move()
+                self.last_active_player = player
             if Game.simulate:
-                self.display.update()
+                self.display.update(Game.vis_mode)
 
             # Run at a fixed number of cycles per second
             if Game.simulate:
@@ -98,7 +104,7 @@ class Game:
                 start = time.time()
 
             cycle += 1
-        self.display.update()
+        self.display.update(Game.vis_mode)
         return cycle * SURVIVAL_SCORE
 
 
