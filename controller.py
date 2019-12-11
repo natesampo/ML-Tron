@@ -91,7 +91,7 @@ class AgentController(Controller):
         # Update the set of input nodes to represent the board state
         for node in self.agent.input_nodes:
             pos = self.node_number_to_board_position(node.number)
-            node.val = TILE_TYPE_TO_WEIGHT[self.agent.game.board[pos[0]][pos[1]]]
+            node.val = TILE_TYPE_TO_WEIGHT[str(self.agent.game.board[pos[0]][pos[1]][0])]
 
         # Check highest output value and move in that direction
         max_value = None

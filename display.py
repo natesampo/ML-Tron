@@ -44,6 +44,15 @@ class WindowDisplay(Display):
         self.node_innovation_to_position = {}
         self.node_count = 0
 
+    def tile_to_color(self, tile):
+        hues = [(1, 1, 1), (0.3, 0.6, 1), (1, 0.4, 0.3), (0.4, 0.9, 0.3), (1, 1, 0), (1, 0, 1), (0, 1, 1)]
+        vals = {PLAYER_TILE: 200,
+                TAIL_TILE: 128,
+                EMPTY_TILE: 30}
+        hue = hues[tile[1]]
+        val = vals[tile[0]]
+        return tuple([int(h * val) for h in hue])
+
     def update(self, vis_mode=False):
         dt = self.time_step()
 
@@ -64,7 +73,7 @@ class WindowDisplay(Display):
                 if vis_mode:
                     real_i = (i - active_player.x - BOARD_WIDTH//2) % BOARD_WIDTH
                     real_j = (j - active_player.y - BOARD_HEIGHT//2) % BOARD_HEIGHT
-                color = COLOR_LOOKUP.get(str(item), WHITE)
+                color = self.tile_to_color(item)
                 rect = (x + real_i*TILE_SIZE, y + real_j*TILE_SIZE, TILE_SIZE, TILE_SIZE)
                 pygame.draw.rect(self.screen, color, rect)
 

@@ -13,7 +13,7 @@ from constants import *
 class Game:
 
     board = None
-    player_count = 1
+    player_count = 0
     simulate = False
     vis_mode = False
     last_active_player = None
@@ -44,23 +44,25 @@ class Game:
             and assigns it to self.board.
         """
 
-        self.board = [[EMPTY_TILE for _ in range(BOARD_HEIGHT)] for _ in range(BOARD_WIDTH)]
+        self.board = [[(EMPTY_TILE, 0) for _ in range(BOARD_HEIGHT)] for _ in range(BOARD_WIDTH)]
 
         # Add tail tiles around the edges
         for x, column in enumerate(self.board):
             for y, _ in enumerate(column):
                 if x == 0 or y == 0 or x == BOARD_WIDTH - 1 or y == BOARD_HEIGHT - 1:
-                    self.board[x][y] = TAIL_TILE
+                    self.board[x][y] = (TAIL_TILE, 0)
 
     def add_player(self, x, y):
         """ Adds a new player at position x, y """
-        self.players.append(player.Player(x, y, self))
+        self.players.append(player.Player(x, y, self, id=len(self.players) + 1))
+        self.player_count += 1
 
     def add_agent_player(self, x, y, agent):
         """ Adds a new player, controlled by a NEAT agent, at position x, y """
-        new_player = player.Player(x, y, self)
+        new_player = player.Player(x, y, self, id=len(self.players) + 1)
         new_player.controller = controller.AgentController(agent)
         self.players.append(new_player)
+        self.player_count += 1
 
     def check_globals(self, events):
         """ Given a list of PyGame events, closes the program if it contains a QUIT event. """
