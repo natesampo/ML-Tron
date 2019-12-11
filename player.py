@@ -31,7 +31,7 @@ class Player(object):
         # Move to new tile if not empty
         collision_tile = self.game.board[self.x][self.y]
         if str(collision_tile[0]) is EMPTY_TILE:
-            self.game.board[self.x][self.y] = (PLAYER_TILE, self.id)
+            self.game.board[self.x][self.y] = (self, self.id)
         elif str(collision_tile[0]) is PLAYER_TILE:
             self.die()
             collision_tile[0].has_been_hit = True
