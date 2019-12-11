@@ -34,7 +34,7 @@ class Player(object):
             self.game.board[self.x][self.y] = (PLAYER_TILE, self.id)
         elif str(collision_tile[0]) is PLAYER_TILE:
             self.die()
-            collision_tile.has_been_hit = True
+            collision_tile[0].has_been_hit = True
         else:
             self.die()
 

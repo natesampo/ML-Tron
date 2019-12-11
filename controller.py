@@ -5,6 +5,8 @@ from constants import *
 class Controller:
     """ Class for controlling a player. """
 
+    agent = None
+
     def __init__(self):
         self.direction = UP
 

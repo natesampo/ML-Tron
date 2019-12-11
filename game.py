@@ -17,6 +17,7 @@ class Game:
     simulate = False
     vis_mode = False
     last_active_player = None
+    auto_player = False
 
     def __init__(self):
         pygame.init()
@@ -38,6 +39,9 @@ class Game:
                 x, y = spawn_locations.pop()
                 self.add_agent_player(x, y, agent)
                 agent.game = self
+        if Game.auto_player:
+            x, y = spawn_locations.pop()
+            self.add_player(x, y)
 
     def generate_board(self):
         """ Generates an array of EMPTY tiles of size BOARD_SIZE with walls along the outside
@@ -76,11 +80,13 @@ class Game:
                 elif event.key == pygame.K_2:
                     print(f"Vis mode {not Game.vis_mode}")
                     Game.vis_mode = not Game.vis_mode
+                elif event.key == pygame.K_3:
+                    Game.auto_player = not Game.auto_player
 
     def main(self):
         """ Runs the main loop. """
         start = time.time()
-        cps = 25  # Cycles per second to run simulation. Set to None for no limit.
+        cps = 12  # Cycles per second to run simulation. Set to None for no limit.
         cycle = 0
 
         while self.players:
