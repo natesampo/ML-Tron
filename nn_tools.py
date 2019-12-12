@@ -1,6 +1,7 @@
 import math
 import random
 import game
+import time
 import pickle
 from constants import *
 from controller import node_number_to_board_offset
@@ -294,6 +295,7 @@ class Population:
         self.node_count = 0
         self.generation = 0
         self.species_prev = []
+        self.start_time = time.time()
 
     def simulate(self, players):
 
@@ -318,9 +320,15 @@ class Population:
 
             self.agents.sort(key=lambda x:x.fitness)
 
+            # Print calculation time since last time step
+            dt = time.time() - self.start_time
+            self.start_time += dt
+
+            print()
             print(f"Generation: {generation_number}")
             print(f"Highest fitness: {self.agents[-1].fitness}")
             print(f"Species count: {len(self.census)}")
+            print(f"Calculation time: {dt}")
 
             self.agents = self.agents[-live_size:]
 

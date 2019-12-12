@@ -19,13 +19,15 @@ class Display:
         self.last_update_time = now
         return dt
 
-    def update(self):
+    def update(self, vis_mode=False):
         # Default display object does nothing on update
         pass
 
+    def reset(self, game):
+        pass
 
 class PrintDisplay(Display):
-    def update(self):
+    def update(self, vis_mode=False):
         for i in range(len(self.game.board[0])):
             for j in range(len(self.game.board)):
                 print(str(self.game.board[j][i]), end=' ')
@@ -59,6 +61,9 @@ class WindowDisplay(Display):
 
     def update(self, vis_mode=False):
         dt = self.time_step()
+
+        if not self.game.render_enable:
+            return
 
         self.screen.fill((0, 0, 0))
 

@@ -19,10 +19,12 @@ class Game:
     last_active_player = None
     auto_player = False
     display = None
+    render_enable = True
 
     def __init__(self):
         pygame.init()
         if Game.display is None:
+            # Game.display = display.Display(self)
             Game.display = display.WindowDisplay(self)
         else:
             Game.display.reset(self)
@@ -30,6 +32,7 @@ class Game:
         self.generate_board()
         self.players = []
         self.bot_list = []
+        self.ui_font = pygame.font.SysFont("arial", 20)
 
     def add_players(self, human_player=False, bot_list=[]):
         """ Adds a human player if specified, than any number of players controlled by agents.
@@ -90,6 +93,14 @@ class Game:
                     Game.vis_mode = not Game.vis_mode
                 elif event.key == pygame.K_3:
                     Game.auto_player = not Game.auto_player
+                elif event.key == pygame.K_4:
+                    Game.render_enable = not Game.render_enable
+                    if not Game.render_enable:
+                        text = self.ui_font.render("Press 4 to enable rendering", 1, (255, 255, 255))
+                        self.display.screen.fill((0, 0, 0))
+                        self.display.screen.blit(text, (WINDOW_WIDTH//2 - text.get_width()//2,
+                                                        WINDOW_HEIGHT//2 - text.get_height()//2))
+                        pygame.display.flip()
 
     def main(self):
         """ Runs the main loop. """
