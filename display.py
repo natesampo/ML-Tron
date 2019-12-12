@@ -140,7 +140,7 @@ class WindowDisplay(Display):
     def draw_edges(self, agent):
         if not agent:
             return
-        
+
         for edge in agent.edges:
             pos_1 = self.innovation_to_position(edge.in_node.number)
             if pos_1[0] < WINDOW_WIDTH//2:

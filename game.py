@@ -121,10 +121,10 @@ class Game:
     def main(self):
         """ Runs the main loop. """
         start = time.time()
-        cps = 12  # Cycles per second to run simulation. Set to None for no limit.
+        cps = 8  # Cycles per second to run simulation. Set to None for no limit.
         cycle = 0
 
-        while len(self.players) > 0:
+        while len(self.players) > 1:
 
             # Check keyboard inputs and window closing
             events = pygame.event.get()
@@ -155,7 +155,19 @@ class Game:
             self.display.update(Game.vis_mode)
             self.render_settings()
             pygame.display.flip()
+
+        if len(self.players):
+            winner = self.last_active_player
+            winner.age += self.count_empty_tiles()//2
         return [bot.age * SURVIVAL_SCORE for bot in self.bot_list]
+
+    def count_empty_tiles(self):
+        total = 0
+        for row in self.board:
+            for item in row:
+                if item[0] == EMPTY_TILE:
+                    total += 1
+        return total
 
 
 if __name__=="__main__":

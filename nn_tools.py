@@ -330,6 +330,7 @@ class Population:
             print()
             print(f"Generation: {generation_number}")
             print(f"Highest fitness: {self.agents[-1].fitness}")
+            print(f"Mean fitness: {sum([a.fitness for a in self.agents])/len(self.agents)}")
             print(f"Species count: {len(self.census)}")
             print(f"Calculation time: {dt}")
 
