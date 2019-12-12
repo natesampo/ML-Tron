@@ -20,6 +20,7 @@ class Game:
     auto_player = False
     display = None
     render_enable = True
+    pickle_best_agent = False
 
     def __init__(self):
         pygame.init()
@@ -44,11 +45,10 @@ class Game:
         if human_player:
             x, y = spawn_locations.pop()
             self.add_player(x, y)
-        else:
-            for agent in bot_list:
-                x, y = spawn_locations.pop()
-                self.add_agent_player(x, y, agent)
-                agent.game = self
+        for agent in bot_list:
+            x, y = spawn_locations.pop()
+            self.add_agent_player(x, y, agent)
+            agent.game = self
         if Game.auto_player:
             x, y = spawn_locations.pop()
             self.add_player(x, y)
@@ -79,6 +79,22 @@ class Game:
         self.players.append(new_player)
         self.player_count += 1
 
+    def render_settings(self):
+        colors  = [(80, 255, 110) if item else (150, 150, 150) for item in [Game.simulate,
+                                                                             Game.vis_mode,
+                                                                             Game.auto_player,
+                                                                             Game.render_enable]]
+        text = [f"1. ANIMATION {'ON' if Game.simulate else 'OFF'}",
+                f"2. VIS MODE {'ON' if Game.vis_mode else 'OFF'}",
+                f"3. HUMAN MODE {'ON' if Game.auto_player else 'OFF'}",
+                f"4. DISPLAY {'ON' if Game.render_enable else 'OFF'}"]
+        surfs = [self.ui_font.render(t, 1, colors[i]) for i, t in enumerate(text)]
+        x = 10
+        y = 10
+        for item in surfs:
+            self.display.screen.blit(item, (x, y))
+            y += 20
+
     def check_globals(self, events):
         """ Given a list of PyGame events, closes the program if it contains a QUIT event. """
         for event in events:
@@ -101,14 +117,16 @@ class Game:
                         self.display.screen.blit(text, (WINDOW_WIDTH//2 - text.get_width()//2,
                                                         WINDOW_HEIGHT//2 - text.get_height()//2))
                         pygame.display.flip()
+                elif event.key == pygame.K_5:
+                    Game.pickle_best_agent = not Game.pickle_best_agent
 
     def main(self):
         """ Runs the main loop. """
         start = time.time()
-        cps = 12  # Cycles per second to run simulation. Set to None for no limit.
+        cps = 8  # Cycles per second to run simulation. Set to None for no limit.
         cycle = 0
 
-        while len(self.players) > 0:
+        while len(self.players) > 1:
 
             # Check keyboard inputs and window closing
             events = pygame.event.get()
@@ -120,8 +138,15 @@ class Game:
                 if player in self.players:
                     player.move()
                     self.last_active_player = player
-            if Game.simulate:
+                if Game.pickle_best_agent:
+                    try:
+                        player.controller.agent.pop.pickle_best_agent = Game.pickle_best_agent
+                    except AttributeError as a:
+                        pass
+            if Game.simulate and self.render_enable:
                 self.display.update(Game.vis_mode)
+                self.render_settings()
+                pygame.display.flip()
 
             # Run at a fixed number of cycles per second
             if Game.simulate:
@@ -133,8 +158,23 @@ class Game:
 
             cycle += 1
 
-        self.display.update(Game.vis_mode)
+        if Game.render_enable:
+            self.display.update(Game.vis_mode)
+            self.render_settings()
+            pygame.display.flip()
+
+        if len(self.players):
+            winner = self.last_active_player if self.last_active_player else self.players[0]
+            winner.age += self.count_empty_tiles()//2
         return [bot.age * SURVIVAL_SCORE for bot in self.bot_list]
+
+    def count_empty_tiles(self):
+        total = 0
+        for row in self.board:
+            for item in row:
+                if item[0] == EMPTY_TILE:
+                    total += 1
+        return total
 
 
 if __name__=="__main__":
