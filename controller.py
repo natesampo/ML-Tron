@@ -59,7 +59,8 @@ def node_number_to_board_offset(n):
     """ Given a node innovation number, calculates the offset from the player of the corresponding node. """
     n = n - NUM_OUTPUT_NODES
     x_offset = n % BOARD_WIDTH
-    y_offset = (n//BOARD_WIDTH) % BOARD_HEIGHT
+    y_offset = n//BOARD_WIDTH
+
     return x_offset, y_offset
 
 
@@ -76,6 +77,10 @@ class AgentController(Controller):
         relevant_player = [player for player in self.agent.game.players if player.controller.agent is self.agent][0]
         origin = relevant_player.x, relevant_player.y
         x_offset, y_offset = node_number_to_board_offset(n)
+
+        if y_offset == BOARD_HEIGHT:
+            return f"{x_offset}"
+
         x = (origin[0] + x_offset) % BOARD_WIDTH
         y = (origin[1] + y_offset) % BOARD_HEIGHT
         return x, y
@@ -93,7 +98,18 @@ class AgentController(Controller):
         # Update the set of input nodes to represent the board state
         for node in self.agent.input_nodes:
             pos = self.node_number_to_board_position(node.number)
-            node.val = TILE_TYPE_TO_WEIGHT[str(self.agent.game.board[pos[0]][pos[1]][0])]
+            if isinstance(pos, str):
+                    node.val = 0
+                    for player in self.agent.game.players:
+                        if not player.controller == self:
+                            for player_self in self.agent.game.players:
+                                if player_self.controller == self:
+                                    if pos == "0":
+                                        node.val = player.x - player_self.x
+                                    else:
+                                        node.val = player.y - player_self.y
+            else:
+                node.val = TILE_TYPE_TO_WEIGHT[str(self.agent.game.board[pos[0]][pos[1]][0])]
 
         # Check highest output value and move in that direction
         max_value = None

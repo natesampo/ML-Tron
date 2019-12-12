@@ -154,6 +154,13 @@ class Agent:
             self.node_numbers.add(self.pop.node_count)
             self.input_nodes.add(Node(innovation=self.pop.new_node_number()))
 
+        self.node_numbers.add(self.pop.node_count)
+        x_node = Node(innovation=self.pop.new_node_number())
+        self.input_nodes.add(x_node)
+        self.node_numbers.add(self.pop.node_count)
+        y_node = Node(innovation=self.pop.new_node_number())
+        self.input_nodes.add(y_node)
+
         self.nodes |= self.input_nodes
         self.nodes |= self.output_nodes
 
@@ -164,6 +171,12 @@ class Agent:
                 for output_node in self.output_nodes:
                     self.innovations.add(self.pop.innovation_count)
                     self.edges.add(Edge(self.pop.new_innovation_number(), node, output_node))
+
+        for output_node in self.output_nodes:
+            self.innovations.add(self.pop.innovation_count)
+            self.edges.add(Edge(self.pop.new_innovation_number(), x_node, output_node))
+            self.innovations.add(self.pop.innovation_count)
+            self.edges.add(Edge(self.pop.new_innovation_number(), y_node, output_node))
 
     def break_edge(self, edge):
         """ Creates a new node where an edge used to be, with two new edges connecting it to the previous edge's
@@ -327,11 +340,24 @@ class Population:
             dt = time.time() - self.start_time
             self.start_time += dt
 
+            avg_x = 0
+            avg_y = 0
+            for agent in self.agents:
+                for edge in agent.edges:
+                    if edge.innovation == 16 or edge.innovation == 18 or edge.innovation == 20 or edge.innovation == 22:
+                        avg_x += edge.weight
+                    elif edge.innovation == 17 or edge.innovation == 19 or edge.innovation == 21 or edge.innovation == 23:
+                        avg_y += edge.weight
+            avg_x = avg_x/(POPULATION_SIZE*4)
+            avg_y = avg_y/(POPULATION_SIZE*4)
+
             print()
             print(f"Generation: {generation_number}")
             print(f"Highest fitness: {self.agents[-1].fitness}")
             print(f"Species count: {len(self.census)}")
             print(f"Calculation time: {dt}")
+            print(f"Avg X Weight: {avg_x}")
+            print(f"Avg Y Weight: {avg_y}")
 
             self.agents = self.agents[-live_size:]
 
