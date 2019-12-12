@@ -79,6 +79,22 @@ class Game:
         self.players.append(new_player)
         self.player_count += 1
 
+    def render_settings(self):
+        colors  = [(80, 255, 110) if item else (150, 150, 150) for item in [Game.simulate,
+                                                                             Game.vis_mode,
+                                                                             Game.auto_player,
+                                                                             Game.render_enable]]
+        text = [f"1. ANIMATION {'ON' if Game.simulate else 'OFF'}",
+                f"2. VIS MODE {'ON' if Game.vis_mode else 'OFF'}",
+                f"3. HUMAN MODE {'ON' if Game.auto_player else 'OFF'}",
+                f"4. DISPLAY {'ON' if Game.render_enable else 'OFF'}"]
+        surfs = [self.ui_font.render(t, 1, colors[i]) for i, t in enumerate(text)]
+        x = 10
+        y = 10
+        for item in surfs:
+            self.display.screen.blit(item, (x, y))
+            y += 20
+
     def check_globals(self, events):
         """ Given a list of PyGame events, closes the program if it contains a QUIT event. """
         for event in events:
@@ -120,8 +136,10 @@ class Game:
                 if player in self.players:
                     player.move()
                     self.last_active_player = player
-            if Game.simulate:
+            if Game.simulate and self.render_enable:
                 self.display.update(Game.vis_mode)
+                self.render_settings()
+                pygame.display.flip()
 
             # Run at a fixed number of cycles per second
             if Game.simulate:
@@ -133,7 +151,10 @@ class Game:
 
             cycle += 1
 
-        self.display.update(Game.vis_mode)
+        if Game.render_enable:
+            self.display.update(Game.vis_mode)
+            self.render_settings()
+            pygame.display.flip()
         return [bot.age * SURVIVAL_SCORE for bot in self.bot_list]
 
 

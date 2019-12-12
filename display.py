@@ -38,6 +38,7 @@ class WindowDisplay(Display):
     def __init__(self, game):
         super().__init__(game)
         self.screen = pygame.display.set_mode(WINDOW_SIZE)
+        pygame.display.set_caption("NEAT Tron AI")
         self.node_label_font = pygame.font.SysFont("Arial", 30)
         self.node_surf = pygame.Surface((25, 25))
         pygame.draw.ellipse(self.node_surf, (100, 100, 100), (0, 0, 25, 25))
@@ -93,9 +94,9 @@ class WindowDisplay(Display):
                 self.draw_intermediary_nodes(agent)
                 self.draw_edges(agent)
 
-        pygame.display.flip()
-
     def draw_output_nodes(self, agent):
+        if not agent:
+            return
         best_node = max(list(agent.output_nodes), key=lambda x:x.val)
         names = ["UP", "LEFT", "RIGHT", "DOWN"]
         x = int(WINDOW_WIDTH*0.85)
@@ -119,6 +120,9 @@ class WindowDisplay(Display):
             y += 35
 
     def draw_intermediary_nodes(self, agent):
+        if not agent:
+            return
+
         x = WINDOW_WIDTH//2
         y = WINDOW_HEIGHT//4
         xoff = 0
@@ -134,6 +138,9 @@ class WindowDisplay(Display):
                 xoff += 50
 
     def draw_edges(self, agent):
+        if not agent:
+            return
+        
         for edge in agent.edges:
             pos_1 = self.innovation_to_position(edge.in_node.number)
             if pos_1[0] < WINDOW_WIDTH//2:
