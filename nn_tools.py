@@ -147,9 +147,11 @@ class Agent:
         self.input_nodes = set()
 
         for _ in range(output_size):
+            self.node_numbers.add(self.pop.node_count)
             self.output_nodes.add(Node(innovation=self.pop.new_node_number()))
 
         for _ in range(input_size):
+            self.node_numbers.add(self.pop.node_count)
             self.input_nodes.add(Node(innovation=self.pop.new_node_number()))
 
         self.nodes |= self.input_nodes
@@ -160,6 +162,7 @@ class Agent:
             x_offset, y_offset = node_number_to_board_offset(node.number)
             if (x_offset, y_offset) in [(1, 0), (BOARD_WIDTH - 1, 0), (0, 1), (0, BOARD_HEIGHT - 1)]:
                 for output_node in self.output_nodes:
+                    self.innovations.add(self.pop.innovation_count)
                     self.edges.add(Edge(self.pop.new_innovation_number(), node, output_node))
 
     def break_edge(self, edge):
