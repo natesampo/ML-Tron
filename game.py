@@ -20,6 +20,7 @@ class Game:
     auto_player = False
     display = None
     render_enable = True
+    pickle_best_agent = False
 
     def __init__(self):
         pygame.init()
@@ -44,11 +45,10 @@ class Game:
         if human_player:
             x, y = spawn_locations.pop()
             self.add_player(x, y)
-        else:
-            for agent in bot_list:
-                x, y = spawn_locations.pop()
-                self.add_agent_player(x, y, agent)
-                agent.game = self
+        for agent in bot_list:
+            x, y = spawn_locations.pop()
+            self.add_agent_player(x, y, agent)
+            agent.game = self
         if Game.auto_player:
             x, y = spawn_locations.pop()
             self.add_player(x, y)
@@ -117,6 +117,8 @@ class Game:
                         self.display.screen.blit(text, (WINDOW_WIDTH//2 - text.get_width()//2,
                                                         WINDOW_HEIGHT//2 - text.get_height()//2))
                         pygame.display.flip()
+                elif event.key == pygame.K_5:
+                    Game.pickle_best_agent = not Game.pickle_best_agent
 
     def main(self):
         """ Runs the main loop. """
@@ -136,6 +138,11 @@ class Game:
                 if player in self.players:
                     player.move()
                     self.last_active_player = player
+                if Game.pickle_best_agent:
+                    try:
+                        player.controller.agent.pop.pickle_best_agent = Game.pickle_best_agent
+                    except AttributeError as a:
+                        pass
             if Game.simulate and self.render_enable:
                 self.display.update(Game.vis_mode)
                 self.render_settings()
@@ -157,7 +164,7 @@ class Game:
             pygame.display.flip()
 
         if len(self.players):
-            winner = self.last_active_player
+            winner = self.last_active_player if self.last_active_player else self.players[0]
             winner.age += self.count_empty_tiles()//2
         return [bot.age * SURVIVAL_SCORE for bot in self.bot_list]
 

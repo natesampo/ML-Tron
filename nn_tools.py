@@ -3,6 +3,8 @@ import random
 import game
 import time
 import pickle
+import pygame
+import sys
 from constants import *
 from controller import node_number_to_board_offset
 
@@ -291,6 +293,8 @@ class Agent:
 
 class Population:
 
+    pickle_best_agent = False
+
     def __init__(self):
         self.agents = []
         self.census = dict()
@@ -335,9 +339,14 @@ class Population:
             print(f"Calculation time: {dt}")
 
             self.agents = self.agents[-live_size:]
-
-            for agent in self.agents:
-                agent.fitness = 0
+            if self.pickle_best_agent:
+                filename = f"agent_{time.time()}.pk1"
+                with open(filename, 'wb') as file:
+                    pickle.dump(self.agents[-1], file)
+                    print(f"Agent saved to {filename}.")
+                    self.save_population()
+                    pygame.quit()
+                    sys.exit()
 
             new_agents = []
             for species, pop in self.census.items():
@@ -386,6 +395,7 @@ class Population:
         filename = "population_gen" + str(self.generation) + ".pkl"
         with open(filename, 'wb') as file:
             pickle.dump(self, file)
+            print(f"Population saved to {filename}")
 
     def load_population(self, generation):
         """ Loads a population from a pickled population object
@@ -418,7 +428,7 @@ class Population:
             for idx, species in enumerate(species_list):
                 if not found:
                     dist = self.get_difference(agent, species)
-                    if dist < 1:
+                    if dist < SPECIES_THRESHOLD:
                         if idx not in new_census:
                             new_census[idx] = 1
                         else:
