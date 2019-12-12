@@ -83,11 +83,13 @@ class Game:
         colors  = [(80, 255, 110) if item else (150, 150, 150) for item in [Game.simulate,
                                                                              Game.vis_mode,
                                                                              Game.auto_player,
-                                                                             Game.render_enable]]
+                                                                             Game.render_enable,
+                                                                             True]]
         text = [f"1. ANIMATION {'ON' if Game.simulate else 'OFF'}",
                 f"2. VIS MODE {'ON' if Game.vis_mode else 'OFF'}",
                 f"3. HUMAN MODE {'ON' if Game.auto_player else 'OFF'}",
-                f"4. DISPLAY {'ON' if Game.render_enable else 'OFF'}"]
+                f"4. DISPLAY {'ON' if Game.render_enable else 'OFF'}",
+                f"5. SAVE AGENT POPULATION"]
         surfs = [self.ui_font.render(t, 1, colors[i]) for i, t in enumerate(text)]
         x = 10
         y = 10
