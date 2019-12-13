@@ -265,6 +265,7 @@ class Agent:
             g.add_players(human_player=False, bot_list=[self])
             fits = g.main()
             fitnesses.append(fits[0])
+            self.game = None
         self.fitness += min(fitnesses)
         self.game = None
 
@@ -347,8 +348,7 @@ class Population:
 
             try:
                 for i in range(len(self.agents)):
-                    for _ in range(3):
-                        self.agents[i].test_solo_fitness()
+                    self.agents[i].test_solo_fitness()
                     for j in range(1, PLAY_WINDOW+1):
                         self.agents[i].test_fitness([self.agents[i], self.agents[(i+j)%len(self.agents)]])
             except Exception as e:
