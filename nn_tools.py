@@ -6,6 +6,7 @@ import pickle
 import pygame
 import sys
 from constants import *
+from game import Game
 from controller import node_number_to_board_offset
 
 
@@ -369,8 +370,8 @@ class Population:
                     pickle.dump(self.agents[-1], file)
                     print(f"Agent saved to {filename}.")
                     self.save_population()
-                    pygame.quit()
-                    sys.exit()
+                self.pickle_best_agent = False
+                Game.pickle_best_agent = False
 
             new_agents = []
             for species, pop in self.census.items():
