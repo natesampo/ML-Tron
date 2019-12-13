@@ -46,8 +46,6 @@ class Player(object):
         self.age += 1
         return dead_players
 
-        return dead_players
-
     def die(self):
         # self.game.board[self.x][self.y] = (TAIL_TILE, self.id)
         self.game.players.remove(self)
