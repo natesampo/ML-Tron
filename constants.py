@@ -68,6 +68,7 @@ INTERSPECIES_MATING_PROB = 0.001
 OFFSPRING_MUTATION_FRACTION = 0.25
 INHERIT_DISABLED_PROB = 0.75
 NEW_EDGE_MUTATION_PROB = 0.5  # This proportion of mutations are new edges; the rest are new nodes
+REPRODUCTION_PROB = 0.2
 
 EDGE_MUTATION_PROB = 0.1  # Each edge has this chance of mutating each time step
 EDGE_MUTATION_STD_DEV = 1
