@@ -172,8 +172,13 @@ class Game:
             pygame.display.flip()
 
         if len(self.players):
-            winner = self.players[0]
-            winner.age += self.count_empty_tiles()//2
+            winner = max(self.players, key=lambda p:p.age)
+            false_winner = False
+            for item in self.players:
+                if item.age >= winner.age and item is not winner:
+                    false_winner = True
+            if not false_winner:
+                winner.age *= 2
         return [bot.age * SURVIVAL_SCORE for bot in self.bot_list]
 
     def count_empty_tiles(self):
