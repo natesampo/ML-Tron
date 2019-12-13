@@ -345,17 +345,6 @@ class Population:
             dt = time.time() - self.start_time
             self.start_time += dt
 
-            avg_x = 0
-            avg_y = 0
-            for agent in self.agents:
-                for edge in agent.edges:
-                    if edge.innovation == 16 or edge.innovation == 18 or edge.innovation == 20 or edge.innovation == 22:
-                        avg_x += edge.weight
-                    elif edge.innovation == 17 or edge.innovation == 19 or edge.innovation == 21 or edge.innovation == 23:
-                        avg_y += edge.weight
-            avg_x = avg_x/(POPULATION_SIZE*4)
-            avg_y = avg_y/(POPULATION_SIZE*4)
-
             print()
             print(f"Generation: {generation_number}")
             print(f"Highest fitness: {self.agents[-1].fitness}")
