@@ -1,7 +1,7 @@
 # PercepTRON
 We hate losing at Tron. To remedy this, we  developed an evolutionary machine learning algorithm to lose Tron for us. 
 
-This project was done as project for a machine learning course at Olin College.
+This project was done as project for a machine learning course at Olin College. To play a game with our trained bot, clone this repository and run ```python agent_test.py``` with Python 3.7 or newer. You may need to ```pip install pygame```.
 
 ## What a NEAT algorithm
 
