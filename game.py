@@ -128,6 +128,8 @@ class Game:
         cps = 8  # Cycles per second to run simulation. Set to None for no limit.
         cycle = 0
 
+        starting_players = self.players[::-1]
+
         while len(self.players) > 0:
 
             # Check keyboard inputs and window closing
@@ -171,10 +173,10 @@ class Game:
             self.render_settings()
             pygame.display.flip()
 
-        if len(self.players):
-            winner = max(self.players, key=lambda p:p.age)
+        if len(starting_players):
+            winner = max(starting_players, key=lambda p:p.age)
             false_winner = False
-            for item in self.players:
+            for item in starting_players:
                 if item.age >= winner.age and item is not winner:
                     false_winner = True
             if not false_winner:
