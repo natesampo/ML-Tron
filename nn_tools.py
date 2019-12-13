@@ -335,9 +335,16 @@ class Population:
 
             random.shuffle(self.agents)
 
-            for i in range(len(self.agents)):
-                for j in range(1, PLAY_WINDOW+1):
-                    self.agents[i].test_fitness([self.agents[i], self.agents[(i+j)%len(self.agents)]])
+            try:
+                for i in range(len(self.agents)):
+                    for j in range(1, PLAY_WINDOW+1):
+                        self.agents[i].test_fitness([self.agents[i], self.agents[(i+j)%len(self.agents)]])
+            except Exception as e:
+                print(e)
+                self.save_population()
+                pygame.quit()
+                sys.exit()
+
 
             self.agents.sort(key=lambda x:x.fitness)
 
@@ -412,6 +419,8 @@ class Population:
         """ Create pickle file of entire population
         """
         filename = "population_gen" + str(self.generation) + ".pkl"
+        for agent in self.agents:
+            agent.game = None
         with open(filename, 'wb') as file:
             pickle.dump(self, file)
             print(f"Population saved to {filename}")
@@ -539,4 +548,8 @@ class Population:
 
 if __name__=="__main__":
     p = Population()
-    p.simulate(1)
+    try:
+        p.simulate(1)
+    except:
+        p.save_population()
+        print("Population saved.")
