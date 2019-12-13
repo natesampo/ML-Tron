@@ -1,6 +1,8 @@
 # PercepTRON
 We hate losing at Tron. To remedy this, we  developed an evolutionary machine learning algorithm to lose Tron for us. 
 
+This project was done as project for a machine learning course at Olin College.
+
 ## What a NEAT algorithm
 
 NeuroEvolution of Augmenting Topologies (NEAT) is an algorithm for evolving sparse neural nets. NEAT evolves neural networks by randomly adding nodes, adding edges, and perturbing edge weights. More fit networks will replicate while less fit networks will drop out of the population.
@@ -19,11 +21,11 @@ Each generation, individual models are assigned fitness based on matches with fo
 
 Results were mixed.
 
-A. For a single-player game and a set spawning location, our model could find an optimal strategy. In this situation, it learns to fill all available tiles on the board.
+**A.** For a single-player game and a set spawning location, our model could find an optimal strategy. In this situation, it learns to fill all available tiles on the board.
 
-B. For a competitive game with random spawning location, agents would often learn probabilistic or cooperative strategies, such as proceeding in one direction while filling as many squares as possible. This indicates that there wasn’t sufficient reward for winning the game, so agents just learned to get a high number of squares filled on average, but the strategies perform poorly against humans.
+**B.** For a competitive game with random spawning location, agents would often learn probabilistic or cooperative strategies, such as proceeding in one direction while filling as many squares as possible. This indicates that there wasn’t sufficient reward for winning the game, so agents just learned to get a high number of squares filled on average, but the strategies perform poorly against humans.
 
-C. We modified the simulation to incentivize killing the other player by giving the victor a percentage  of the remaining empty tiles. After a bit of training, the bot seemed to develop  higher-level strategies, like attempting to enclose the opponent and avoiding certain “greedy” survival routes.
+**C.** We modified the simulation to incentivize killing the other player by giving the victor a percentage  of the remaining empty tiles. After a bit of training, the bot seemed to develop  higher-level strategies, like attempting to enclose the opponent and avoiding certain “greedy” survival routes.
 
 ## Bibliography
 
