@@ -361,8 +361,6 @@ class Population:
             print(f"Mean fitness: {sum([a.fitness for a in self.agents])/len(self.agents)}")
             print(f"Species count: {len(self.census)}")
             print(f"Calculation time: {dt}")
-            print(f"Avg X Weight: {avg_x}")
-            print(f"Avg Y Weight: {avg_y}")
 
             self.agents = self.agents[-live_size:]
             if self.pickle_best_agent:
