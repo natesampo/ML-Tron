@@ -156,9 +156,6 @@ class Game:
                 self.render_settings()
                 pygame.display.flip()
 
-            for player in dead_players:
-                player.die()
-
             # Run at a fixed number of cycles per second
             if Game.simulate:
                 while time.time() < start + 1/cps:
