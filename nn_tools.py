@@ -259,10 +259,13 @@ class Agent:
             agent.game = None  # Reset this value, set in Game
 
     def test_solo_fitness(self):
-        g = game.Game()
-        g.add_players(human_player=False, bot_list=[self])
-        fitnesses = g.main()
-        self.fitness += fitnesses[0]
+        fitnesses = []
+        for _ in range(3):
+            g = game.Game()
+            g.add_players(human_player=False, bot_list=[self])
+            fits = g.main()
+            fitnesses.append(fits[0])
+        self.fitness += min(fitnesses)
         self.game = None
 
     def copy(self):
@@ -344,7 +347,8 @@ class Population:
 
             try:
                 for i in range(len(self.agents)):
-                    self.agents[i].test_solo_fitness()
+                    for _ in range(3):
+                        self.agents[i].test_solo_fitness()
                     for j in range(1, PLAY_WINDOW+1):
                         self.agents[i].test_fitness([self.agents[i], self.agents[(i+j)%len(self.agents)]])
             except Exception as e:
