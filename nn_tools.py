@@ -376,9 +376,14 @@ class Population:
                 else:
                     pass
             for i in range(pop_size - len(new_agents)):
-                new_agent = random.choice(self.agents).copy()
-                new_agent.mutate()
-                new_agents.append(new_agent)
+                if random.random() < 0.50:
+                    new_agent = random.choice(self.agents).copy()
+                    new_agent.mutate()
+                    new_agents.append(new_agent)
+                else:
+                    parents = random.sample(self.agents, 2)
+                    new_agent = self.reproduction(*parents)
+                    new_agents.append(new_agent)
 
             self.agents = new_agents
             generation_number += 1
