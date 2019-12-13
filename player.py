@@ -23,6 +23,8 @@ class Player(object):
 
     def move(self):
         """ Moves in a direction determined by the controller. Then, if the new location is occupied, dies. """
+        dead_players = set()
+
         self.game.board[self.x][self.y] = (TAIL_TILE, self.id)
 
         dead_players = set()
@@ -42,6 +44,8 @@ class Player(object):
             dead_players.add(self)
 
         self.age += 1
+        return dead_players
+
         return dead_players
 
     def die(self):

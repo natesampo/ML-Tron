@@ -147,6 +147,10 @@ class Game:
                         player.controller.agent.pop.pickle_best_agent = Game.pickle_best_agent
                     except AttributeError as a:
                         pass
+
+            for player in dead_players:
+                player.die()
+
             if Game.simulate and self.render_enable:
                 self.display.update(Game.vis_mode)
                 self.render_settings()
@@ -172,7 +176,7 @@ class Game:
 
         if len(self.players):
             winner = self.players[0]
-            #winner.age += self.count_empty_tiles()//2
+            winner.age += self.count_empty_tiles()//2
         return [bot.age * SURVIVAL_SCORE for bot in self.bot_list]
 
     def count_empty_tiles(self):
