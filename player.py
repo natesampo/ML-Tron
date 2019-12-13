@@ -23,6 +23,8 @@ class Player(object):
 
     def move(self):
         """ Moves in a direction determined by the controller. Then, if the new location is occupied, dies. """
+        dead_players = set()
+
         self.game.board[self.x][self.y] = (TAIL_TILE, self.id)
 
         my_move = self.controller.get_move()
@@ -34,12 +36,14 @@ class Player(object):
         if str(collision_tile[0]) is EMPTY_TILE:
             self.game.board[self.x][self.y] = (self, self.id)
         elif str(collision_tile[0]) is PLAYER_TILE:
-            self.die()
-            collision_tile[0].has_been_hit = True
+            dead_players.add(self)
+            dead_players.add(collision_tile[0])
         else:
-            self.die()
+            dead_players.add(self)
 
         self.age += 1
+
+        return dead_players
 
     def die(self):
         # self.game.board[self.x][self.y] = (TAIL_TILE, self.id)

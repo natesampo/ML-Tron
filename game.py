@@ -126,23 +126,29 @@ class Game:
         cps = 8  # Cycles per second to run simulation. Set to None for no limit.
         cycle = 0
 
-        while len(self.players) > 1:
+        while len(self.players) > 0:
 
             # Check keyboard inputs and window closing
             events = pygame.event.get()
             self.check_globals(events)
 
+            dead_players = set()
+
             # Update players
             for player in self.players[::-1]:
                 player.update(events)
                 if player in self.players:
-                    player.move()
+                    dead_players |= player.move()
                     self.last_active_player = player
                 if Game.pickle_best_agent:
                     try:
                         player.controller.agent.pop.pickle_best_agent = Game.pickle_best_agent
                     except AttributeError as a:
                         pass
+
+            for player in dead_players:
+                player.die()
+
             if Game.simulate and self.render_enable:
                 self.display.update(Game.vis_mode)
                 self.render_settings()
@@ -164,7 +170,7 @@ class Game:
             pygame.display.flip()
 
         if len(self.players):
-            winner = self.last_active_player if self.last_active_player else self.players[0]
+            winner = self.players[0]
             winner.age += self.count_empty_tiles()//2
         return [bot.age * SURVIVAL_SCORE for bot in self.bot_list]
 
